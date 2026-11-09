@@ -1,0 +1,1227 @@
+{
+  "status": "passed",
+  "macho_files": 111,
+  "files": [
+    {
+      "path": "Contents/MacOS/hamster-video",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "15.0",
+        "arm64": "15.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_ARC4.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_Salsa20.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_chacha20.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_pkcs1_decode.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_aes.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_arc2.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_blowfish.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_cast.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_cbc.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_cfb.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_ctr.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_des.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_des3.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_ecb.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_eksblowfish.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_ocb.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Cipher/_raw_ofb.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_BLAKE2b.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_BLAKE2s.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_MD2.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_MD4.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_MD5.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_RIPEMD160.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_SHA1.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_SHA224.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_SHA256.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_SHA384.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_SHA512.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_ghash_portable.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_keccak.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Hash/_poly1305.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Math/_modexp.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Protocol/_scrypt.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/PublicKey/_curve25519.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/PublicKey/_curve448.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/PublicKey/_ec_ws.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/PublicKey/_ed25519.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/PublicKey/_ed448.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Util/_cpuid_c.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Cryptodome/Util/_strxor.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Python",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Python.framework/Python",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Python.framework/Versions/3.14/Python",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/Python.framework/Versions/Current/Python",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/_brotli.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/_cffi_backend.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/charset_normalizer/cd.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/charset_normalizer/md.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/curl_cffi/_wrapper.abi3.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.9",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/libcrypto.3.dylib",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/libssl.3.dylib",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/libzstd.1.dylib",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_asyncio.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_bisect.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_blake2.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_bz2.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_codecs_cn.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_codecs_hk.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_codecs_iso2022.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_codecs_jp.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_codecs_kr.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_codecs_tw.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_csv.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_ctypes.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_decimal.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_elementtree.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_hashlib.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_heapq.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_hmac.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_interpqueues.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_interpreters.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_json.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_lzma.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_md5.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_multibytecodec.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_multiprocessing.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_pickle.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_posixshmem.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_posixsubprocess.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_queue.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_random.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_scproxy.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_sha1.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_sha2.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_sha3.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_socket.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_sqlite3.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_ssl.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_statistics.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_struct.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_uuid.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/_zstd.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/array.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/binascii.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/fcntl.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/grp.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/math.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/mmap.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/pyexpat.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/readline.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/resource.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/select.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/termios.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/unicodedata.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/python3.14/lib-dynload/zlib.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/_internal/websockets/speedups.cpython-314-darwin.so",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.15",
+        "arm64": "11.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/deno",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "12.0",
+        "arm64": "12.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/ffmpeg",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "15.0",
+        "arm64": "15.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/ffprobe",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "15.0",
+        "arm64": "15.0"
+      }
+    },
+    {
+      "path": "Contents/Resources/tools/yt-dlp",
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ],
+      "minimum_macos": {
+        "x86_64": "10.13",
+        "arm64": "11.0"
+      }
+    }
+  ]
+}

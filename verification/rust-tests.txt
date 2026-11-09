@@ -1,0 +1,16 @@
+   Compiling hamster-video v0.2.0 (/build/hamster-video/outputs/hamster-video-universal)
+    Finished `release` profile [optimized] target(s) in 2.80s
+     Running unittests src/main.rs (work/universal-target/x86_64-apple-darwin/release/deps/hamster_video-cee00d7ae0b55710)
+
+running 8 tests
+test tests::old_preferences_load_and_removed_subtitles_are_ignored ... ok
+test tests::selected_language_never_falls_back_to_another_language ... ok
+test tests::original_quality_does_not_request_recoding_and_url_is_literal ... ok
+test tests::codec_modes_copy_or_convert_and_use_apple_tags ... ok
+test tests::tracks_deduplicate_formats_and_identify_original ... ok
+test tests::urls_and_progress_handle_noise ... ok
+test tests::cancellation_terminates_process_group ... ok
+test tests::appearance_cycle_and_system_following ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

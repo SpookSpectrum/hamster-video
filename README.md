@@ -4,88 +4,99 @@
 
 A friendly macOS video downloader built in Rust, powered by yt-dlp and FFmpeg.
 
-Paste a video link, choose a format and quality, and save it for offline viewing. Hamster Video has an original desktop interface with light, dark and automatic appearance.
-
-**Status: early beta. Current packaged build: Intel Macs running macOS 15 or later.**
+**0.2.0 beta · Universal Mac · macOS 15 or later.** One installer contains native code for both Intel and Apple silicon Macs.
 
 ## Download and install
 
-Installers will be available on the [Releases page](https://github.com/SpookSpectrum/hamster-video/releases).
+Visit the [Releases page](https://github.com/SpookSpectrum/hamster-video/releases), open **Hamster Video 0.2.0 Beta**, and download **HamsterVideo-0.2.0-beta2-Universal.dmg** under **Assets**. The source-code ZIP is for developers.
 
-1. Download the Intel `.dmg` from a release.
-2. Open it and drag **Hamster Video** into **Applications**.
-3. Open the app and paste a full video URL.
+1. Open the DMG.
+2. Drag **Hamster Video** into **Applications**, replacing the previous version if installed.
+3. Open Hamster Video from Applications.
 
-The current build is ad-hoc signed, not Apple-notarized. If macOS blocks the first launch, the app-specific **Open Anyway** option is in System Settings → Privacy & Security after attempting to launch it. Do not disable Gatekeeper globally. No API key, Python installation or Homebrew is needed to run the packaged app.
+The beta is ad-hoc signed and not Apple-notarized. If macOS blocks first launch, after attempting to open it use the app-specific **Open Anyway** option in **System Settings → Privacy & Security**. No API key, Python installation or Homebrew is needed. Preferences and download history from 0.1 are retained.
 
-## Features
+## Download a video
 
-- Multiple video links, one per line, processed in a download queue.
-- MP4 video, or MKV for merged streams when MP4 is unchecked.
-- Quality ceilings of 480p, 720p, 1080p, 1440p and 2160p (4K), depending on the source.
-- MP3 audio extraction.
-- Whole-playlist option and optional English/Dutch published subtitles.
-- Progress, speed, ETA, pause and retry/resume.
-- Remembered preferences and local download history.
-- **Automatic / Light / Dark** appearance in the sidebar; Automatic follows macOS.
+Paste a full video URL, select quality and a destination, then click **Add to downloads**. Several URLs can be entered on separate lines. Enable **Whole playlist** only when you want the entire playlist.
 
-Single-stream downloads may retain their original container. Direct files with unknown resolution retain their original quality. Pause preserves partial files; some sources and interrupted processing stages may restart when resumed. A playlist's progress reflects its current stream, not an overall playlist percentage.
+**Video compatibility** offers three choices:
+
+- **Apple compatible (H.264 / MP4)** — recommended. Produces MP4 with H.264 video and AAC audio. Compatible streams are copied; other codecs are converted.
+- **Original quality** — preserves the downloaded video and audio codecs. Separate streams are merged into MKV; a single stream keeps its source container. The selected resolution ceiling still applies.
+- **High efficiency (HEVC / H.265)** — produces MP4 with HEVC video, the `hvc1` tag and AAC audio. Conversion uses macOS VideoToolbox when the source is not already HEVC. Encoding support depends on the Mac. File size depends on the source and content; it is not always smaller than an already efficient source.
+
+Conversion takes additional time and may change quality. The download shows **Converting** during this step. If conversion fails, its `.source` file is retained and the job reports an error. You can select Original quality and add the URL again.
+
+### Audio language
+
+After a link is pasted, Hamster checks the languages the site exposes. Choose **Original / site default**, or an available language such as **Spanish (es)**. Original is selected explicitly when the site identifies the original track; otherwise the site's default is used.
+
+The chosen track is included with the video, or used for **MP3 audio** extraction. Hamster does not translate or generate speech. A language must actually be offered by the site. If a selected language is unavailable, the download fails rather than silently switching languages. For multiple URLs and playlists, choices shown come from the first video and apply to every item. Some sites do not expose language metadata. Use **Check tracks** to retry discovery.
+
+Subtitles are no longer offered or downloaded.
+
+### Appearance
+
+Click the small icon at the top right to cycle **Automatic (monitor) → Light (sun) → Dark (moon) → Automatic**. Automatic follows your Mac. Your choice is remembered.
+
+## Other features
+
+- Quality ceilings of 480p, 720p, 1080p, 1440p and 2160p, when offered by the source.
+- MP3 audio extraction, download queue, progress, speed and ETA.
+- Pause and retry/resume; partial downloads are retained where supported.
+- Local preferences and download history.
+
+A playlist's progress reflects its current stream, not the whole playlist. Interrupted conversions restart; some sites cannot resume a partial transfer. Files with unknown resolution retain their original resolution. Website support depends on yt-dlp and may change. There is no login/cookie integration, auto-updater or livestream recorder. Download only content you are permitted to save.
 
 ## Build from source
 
-Requires macOS, Rust and Xcode Command Line Tools. The current packaging and bundled helper builds target Intel macOS 15+.
+Requires macOS, Rust and Xcode Command Line Tools:
 
 ```sh
 cargo test --release --locked
 cargo build --release --locked
 ```
 
-The application uses separate helper executables: `yt-dlp`, `ffmpeg`, `ffprobe`, and `deno`. For a development run, point `HAMSTER_TOOLS` at a directory containing these tools and yt-dlp's accompanying `_internal` directory:
+For development, use the helpers from an installed Universal release, including yt-dlp's `_internal` folder:
 
 ```sh
 HAMSTER_TOOLS="/Applications/Hamster Video.app/Contents/Resources/tools" cargo run --release
 ```
 
-To package an application and disk image using the tools from an installed release:
+To build the Universal app and DMG:
 
 ```sh
-bash scripts/build-macos.sh "/Applications/Hamster Video.app/Contents/Resources/tools"
+bash scripts/build-universal-macos.sh "/Applications/Hamster Video.app/Contents/Resources/tools"
 ```
 
-The corresponding FFmpeg and LAME source archives are included in `third_party/`. Rebuild these helpers with:
+The script builds both Rust targets and checks every bundled Mach-O for both architectures and macOS 15 compatibility. It creates an ad-hoc signed build, not a Developer ID notarized release.
+
+The corresponding FFmpeg, LAME and dav1d sources are in `third_party/`. Install Meson, Ninja and pkg-config/pkgconf as build tools, then rebuild both media-helper architectures:
 
 ```sh
-bash scripts/build-media.sh
+bash scripts/build-media-universal.sh
 ```
 
-This produces `work/media-tools/`. The remaining helper versions and checksums are documented in `third_party/tool-checksums.json` and `REPORT.md`.
+This produces `work/media-universal/bin/universal/`. FFmpeg uses macOS VideoToolbox for H.264/HEVC encoding and dav1d for software AV1 decoding. It does not use GPL/nonfree codec libraries. Helper versions and checksums are in `third_party/tool-checksums.json`.
 
-## Tests and current limits
-
-Six Rust tests cover URL validation, command argument handling, progress parsing, format/playlist options, process cancellation and appearance behavior. End-to-end checks covered a local MP4, MP3 conversion, DASH audio/video merging, HTTP error reporting and a public YouTube download at 144p. Metadata exposed 2160p formats; a full 4K transfer, complete playlist and live subtitle retrieval were not tested in that session.
-
-A deterministic local smoke runner is included:
+## Verification
 
 ```sh
 python3 tests/smoke.py /absolute/path/to/hamster-video /absolute/path/to/tools
+python3 scripts/verify-universal.py "/absolute/path/to/Hamster Video.app"
 ```
 
-The original build session's final smoke-runner repeat was blocked by its sandbox's local-server restriction. Earlier individual end-to-end runs succeeded. See `REPORT.md` for the evidence and exact limits.
-
-There is no built-in browser, login/cookie integration, subscription watcher, auto-updater or general-purpose transcoder. Website compatibility depends on yt-dlp and can change. Download only content you are permitted to save.
+Tests cover theme cycling and following macOS, preference migration, language discovery and strict selection, codec conversion decisions, argument safety and cancellation. Local integration checks cover MP4, MP3, DASH merging, a two-language DASH fixture, original-codec output and expected failures. See `REPORT.md` for release-specific results and limits. Apple silicon binaries are cross-compiled and inspected; runtime testing on an Apple silicon Mac is still needed.
 
 ## Privacy and storage
 
-New installations save to `~/Downloads/Hamster Video` by default. Settings and history live in `~/Library/Application Support/Hamster Video/state.json`. The first release can import settings from its earlier development name, Harbor Video. The application has no telemetry and does not read browser cookies or passwords. Submitted URLs are handled by the bundled downloader and the relevant media sites.
+Downloads default to `~/Downloads/Hamster Video`. Settings and history live in `~/Library/Application Support/Hamster Video/state.json`. The app has no telemetry and does not read browser cookies or passwords. Pasted links are sent to their media sites to inspect available formats and languages, before a download is queued. Download history can include private URLs; remove these before sharing logs.
 
-## Contributing
+## Contributing and credits
 
-Bug reports and pull requests are welcome. Include the app version, macOS version, Intel/Apple Silicon architecture and reproducible steps. Remove private URLs, tokens and personal filesystem paths from logs before sharing them. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Bug reports and pull requests are welcome. Include the app version, macOS version, Mac architecture and steps to reproduce. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Credits and licences
-
-The original Rust application code is MIT-licensed; see [LICENSE](LICENSE). Bundled tools and Rust dependencies retain their own licences and notices in `third_party/`.
-
-Built with [egui](https://github.com/emilk/egui), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [FFmpeg](https://ffmpeg.org/), [LAME](https://lame.sourceforge.io/) and [Deno](https://deno.com/). The hamster artwork was generated with AI and refined through human feedback; its prompt is recorded in `assets/ICON-PROMPT.txt`.
+Original Rust code is MIT-licensed; see [LICENSE](LICENSE). Bundled tools and dependencies retain their licences in `third_party/`. Built with [egui](https://github.com/emilk/egui), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [FFmpeg](https://ffmpeg.org/), [LAME](https://lame.sourceforge.io/), [dav1d](https://code.videolan.org/videolan/dav1d) and [Deno](https://deno.com/). The hamster artwork was generated with AI and refined through human feedback; its prompt is recorded in `assets/ICON-PROMPT.txt`.
 
 Hamster Video is an independent application, not affiliated with 4K Download.

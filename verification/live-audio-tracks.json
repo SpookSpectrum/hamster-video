@@ -1,0 +1,130 @@
+{
+  "title": "$456,000 Squid Game In Real Life!",
+  "tracks": [
+    {
+      "code": "en-US",
+      "label": "English (en-US)",
+      "original": true
+    },
+    {
+      "code": "ar",
+      "label": "Arabic (ar)",
+      "original": false
+    },
+    {
+      "code": "bn",
+      "label": "Bengali (bn)",
+      "original": false
+    },
+    {
+      "code": "zh-Hans",
+      "label": "Chinese (zh-Hans)",
+      "original": false
+    },
+    {
+      "code": "zh-Hant",
+      "label": "Chinese (zh-Hant)",
+      "original": false
+    },
+    {
+      "code": "en",
+      "label": "English (en)",
+      "original": false
+    },
+    {
+      "code": "fr",
+      "label": "French (fr)",
+      "original": false
+    },
+    {
+      "code": "de",
+      "label": "German (de)",
+      "original": false
+    },
+    {
+      "code": "hi",
+      "label": "Hindi (hi)",
+      "original": false
+    },
+    {
+      "code": "id",
+      "label": "Indonesian (id)",
+      "original": false
+    },
+    {
+      "code": "it",
+      "label": "Italian (it)",
+      "original": false
+    },
+    {
+      "code": "ja",
+      "label": "Japanese (ja)",
+      "original": false
+    },
+    {
+      "code": "ko",
+      "label": "Korean (ko)",
+      "original": false
+    },
+    {
+      "code": "pl",
+      "label": "Polish (pl)",
+      "original": false
+    },
+    {
+      "code": "pt",
+      "label": "Portuguese (pt)",
+      "original": false
+    },
+    {
+      "code": "ru",
+      "label": "Russian (ru)",
+      "original": false
+    },
+    {
+      "code": "es",
+      "label": "Spanish (es)",
+      "original": false
+    },
+    {
+      "code": "ta",
+      "label": "Tamil (ta)",
+      "original": false
+    },
+    {
+      "code": "th",
+      "label": "Thai (th)",
+      "original": false
+    },
+    {
+      "code": "tr",
+      "label": "Turkish (tr)",
+      "original": false
+    },
+    {
+      "code": "vi",
+      "label": "Vietnamese (vi)",
+      "original": false
+    },
+    {
+      "code": "ml",
+      "label": "ml (ml)",
+      "original": false
+    },
+    {
+      "code": "mr",
+      "label": "mr (mr)",
+      "original": false
+    },
+    {
+      "code": "pa",
+      "label": "pa (pa)",
+      "original": false
+    },
+    {
+      "code": "te",
+      "label": "te (te)",
+      "original": false
+    }
+  ]
+}

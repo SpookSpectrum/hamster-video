@@ -1,14 +1,11 @@
-work/hamster-stage/Hamster Video.app: valid on disk
-work/hamster-stage/Hamster Video.app: satisfies its Designated Requirement
-
-Disk image verification:
-Checksumming Driver Descriptor Map (DDM : 0)…
-     Driver Descriptor Map (DDM : 0): verified CRC32 $88081371
-Checksumming Apple (Apple_partition_map : 1)…
-     Apple (Apple_partition_map : 1): verified CRC32 $32EDD9D9
-Checksumming DiscRecording 9.0.3d5 (Apple_HFS : 2)…
-DiscRecording 9.0.3d5 (Apple_HFS : 2: verified CRC32 $06349B68
-verified CRC32 $4F02B87A
-hdiutil: verify: checksum of "outputs/HamsterVideo-0.1.0-Intel.dmg" is VALID
-
-Final native window verified: title Hamster Video, approved icon, appearance control, preserved download history.
+Hamster Video 0.2.0 beta
+Rust unit tests: 8 passed
+Local integration: discovery plus 8 download cases passed
+Live YouTube: Spanish audio with 144p H.264 video passed
+Intel desktop: H.264 to HEVC and HEVC to H.264 passed
+Native visual check: monitor/sun/moon cycle, repaired moon, edited hamster and Paste a link wording passed
+Universal architecture audit: 111 Mach-O files include x86_64 and arm64; minimum OS <= macOS 15
+App code signature: codesign --verify --deep --strict passed
+Personal-path scan: no matches in distributable sources or app
+Apple silicon runtime: not tested
+Apple notarization: not performed

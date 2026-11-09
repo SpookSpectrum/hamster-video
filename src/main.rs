@@ -1,17 +1,13 @@
 use eframe::egui::{self, Color32, RichText};
 use serde::{Deserialize, Serialize};
-use std::os::unix::process::CommandExt;
+mod engine;
+use engine::{progress, stop, valid_url, worker, MediaInfo, Running};
 use std::{
     collections::VecDeque,
-    io::{BufRead, BufReader},
     path::PathBuf,
-    process::{Command, Stdio},
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        mpsc, Arc, Mutex,
-    },
-    thread,
-    time::Duration,
+    process::Command,
+    sync::mpsc,
+    time::{Duration, Instant},
 };
 
 const ACCENT: Color32 = Color32::from_rgb(69, 215, 183);
@@ -23,6 +19,13 @@ enum Appearance {
     Automatic,
 }
 impl Appearance {
+    fn next(self) -> Self {
+        match self {
+            Self::Automatic => Self::Light,
+            Self::Light => Self::Dark,
+            Self::Dark => Self::Automatic,
+        }
+    }
     fn label(self) -> &'static str {
         match self {
             Self::Dark => "Dark",
@@ -55,22 +58,99 @@ fn configure_styles(ctx: &egui::Context) {
         });
     }
 }
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+enum Compatibility {
+    #[default]
+    Apple,
+    Original,
+    Hevc,
+}
+impl Compatibility {
+    fn slug(self) -> &'static str {
+        match self {
+            Self::Apple => "h264",
+            Self::Original => "original",
+            Self::Hevc => "hevc",
+        }
+    }
+    fn short(self) -> &'static str {
+        match self {
+            Self::Apple => "H.264",
+            Self::Original => "Original",
+            Self::Hevc => "HEVC",
+        }
+    }
+}
+fn appearance_button(ui: &mut egui::Ui, mode: Appearance) -> bool {
+    let (rect, response) = ui.allocate_exact_size(egui::vec2(32., 32.), egui::Sense::click());
+    let response = response.on_hover_text(format!(
+        "Appearance: {}. Click for {}.",
+        mode.label(),
+        mode.next().label()
+    ));
+    response.widget_info(|| {
+        egui::WidgetInfo::labeled(
+            egui::WidgetType::Button,
+            true,
+            format!("Appearance: {}", mode.label()),
+        )
+    });
+    let color = ui.style().interact(&response).fg_stroke.color;
+    let stroke = egui::Stroke::new(1.5_f32, color);
+    let c = rect.center();
+    let painter = ui.painter();
+    if response.hovered() || response.has_focus() {
+        painter.rect_filled(rect, 5., ui.visuals().widgets.hovered.bg_fill);
+    }
+    match mode {
+        Appearance::Automatic => {
+            let screen = egui::Rect::from_center_size(c - egui::vec2(0., 2.), egui::vec2(20., 13.));
+            painter.rect_stroke(screen, 2., stroke, egui::StrokeKind::Inside);
+            painter.line_segment([c + egui::vec2(0., 5.), c + egui::vec2(0., 9.)], stroke);
+            painter.line_segment([c + egui::vec2(-5., 9.), c + egui::vec2(5., 9.)], stroke);
+        }
+        Appearance::Light => {
+            painter.circle_stroke(c, 4., stroke);
+            for i in 0..8 {
+                let a = i as f32 * std::f32::consts::TAU / 8.;
+                let v = egui::vec2(a.cos(), a.sin());
+                painter.line_segment([c + v * 7., c + v * 10.], stroke);
+            }
+        }
+        Appearance::Dark => {
+            let mut points = Vec::new();
+            for i in 0..=24 {
+                let a = std::f32::consts::FRAC_PI_2 + (i as f32 / 24.) * std::f32::consts::PI;
+                points.push(c + egui::vec2(a.cos() * 8., a.sin() * 8.));
+            }
+            painter.add(egui::Shape::line(points, stroke));
+            let mut points = Vec::new();
+            for i in 0..=24 {
+                let a = -std::f32::consts::FRAC_PI_2 - (i as f32 / 24.) * std::f32::consts::PI;
+                points.push(c + egui::vec2(a.cos() * 4., a.sin() * 8.));
+            }
+            painter.add(egui::Shape::line(points, stroke));
+        }
+    }
+    response.clicked()
+}
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(default)]
 struct Settings {
     appearance: Appearance,
-    mp4: bool,
+    compatibility: Compatibility,
+    audio_language: Option<String>,
     folder: String,
     quality: u32,
     audio: bool,
     playlist: bool,
-    subtitles: bool,
 }
 impl Default for Settings {
     fn default() -> Self {
         Self {
             appearance: Appearance::Automatic,
-            mp4: true,
+            compatibility: Compatibility::Apple,
+            audio_language: None,
             folder: format!(
                 "{}/Downloads/Hamster Video",
                 std::env::var("HOME").unwrap_or_default()
@@ -78,7 +158,6 @@ impl Default for Settings {
             quality: 2160,
             audio: false,
             playlist: false,
-            subtitles: false,
         }
     }
 }
@@ -100,11 +179,8 @@ struct Saved {
 enum Event {
     Line(usize, String),
     Done(usize, bool, bool),
-}
-struct Running {
-    index: usize,
-    cancel: Arc<AtomicBool>,
-    pid: Arc<Mutex<Option<u32>>>,
+    Stage(usize, String),
+    Metadata(usize, String, Result<MediaInfo, String>),
 }
 struct Hamster {
     icon: egui::TextureHandle,
@@ -117,6 +193,12 @@ struct Hamster {
     rx: mpsc::Receiver<Event>,
     log: VecDeque<String>,
     show_log: bool,
+    catalog: Option<MediaInfo>,
+    probe_generation: usize,
+    observed_url: String,
+    probe_job: Option<Running>,
+    probe_due: Option<Instant>,
+    track_message: String,
 }
 fn state_path() -> PathBuf {
     if let Ok(p) = std::env::var("HAMSTER_STATE") {
@@ -124,205 +206,6 @@ fn state_path() -> PathBuf {
     }
     PathBuf::from(std::env::var("HOME").unwrap_or_default())
         .join("Library/Application Support/Hamster Video/state.json")
-}
-fn tool(name: &str) -> PathBuf {
-    if let Ok(p) = std::env::var("HAMSTER_TOOLS") {
-        return PathBuf::from(p).join(name);
-    }
-    std::env::current_exe()
-        .unwrap_or_default()
-        .parent()
-        .unwrap_or(std::path::Path::new("."))
-        .join("../Resources/tools")
-        .join(name)
-}
-fn valid_url(s: &str) -> bool {
-    url::Url::parse(s)
-        .map(|u| {
-            matches!(u.scheme(), "https" | "http")
-                && u.host_str().is_some()
-                && u.username().is_empty()
-                && u.password().is_none()
-        })
-        .unwrap_or(false)
-}
-fn args(job: &Job) -> Vec<String> {
-    let mut a: Vec<String> = [
-        "--ignore-config",
-        "--no-colors",
-        "--newline",
-        "--continue",
-        "--no-overwrites",
-        "--socket-timeout",
-        "30",
-        "--retries",
-        "3",
-        "--progress",
-        "--progress-template",
-        "download:PROGRESS|%(progress._percent_str)s|%(progress._speed_str)s|%(progress._eta_str)s",
-        "--print",
-        "before_dl:TITLE|%(title)s",
-        "--print",
-        "after_move:FILE|%(filepath)s",
-        "--no-simulate",
-        "--ffmpeg-location",
-    ]
-    .iter()
-    .map(|s| s.to_string())
-    .collect();
-    a.push(
-        tool("ffmpeg")
-            .parent()
-            .unwrap()
-            .to_string_lossy()
-            .to_string(),
-    );
-    a.extend([
-        "--js-runtimes".into(),
-        format!("deno:{}", tool("deno").display()),
-        "-P".into(),
-        job.settings.folder.clone(),
-        "-o".into(),
-        "%(title).180B [%(id)s].%(ext)s".into(),
-    ]);
-    a.push(
-        if job.settings.playlist {
-            "--yes-playlist"
-        } else {
-            "--no-playlist"
-        }
-        .into(),
-    );
-    if job.settings.audio {
-        a.extend(
-            [
-                "-f",
-                "bestaudio/best",
-                "-x",
-                "--audio-format",
-                "mp3",
-                "--audio-quality",
-                "0",
-            ]
-            .iter()
-            .map(|s| s.to_string()),
-        );
-    } else if job.settings.mp4 {
-        a.extend([
-            "-f".into(),
-            format!(
-                "bv*[ext=mp4][height<=?{q}]+ba[ext=m4a]/b[ext=mp4][height<=?{q}]",
-                q = job.settings.quality
-            ),
-            "--merge-output-format".into(),
-            "mp4".into(),
-        ]);
-    } else {
-        a.extend([
-            "-f".into(),
-            format!(
-                "bv*[height<=?{q}]+ba/b[height<=?{q}]",
-                q = job.settings.quality
-            ),
-            "--merge-output-format".into(),
-            "mkv".into(),
-        ]);
-    }
-    if job.settings.subtitles {
-        a.extend(
-            [
-                "--write-subs",
-                "--sub-langs",
-                "en.*,nl.*",
-                "--convert-subs",
-                "srt",
-            ]
-            .iter()
-            .map(|s| s.to_string()),
-        );
-    }
-    a.extend(["--".into(), job.url.clone()]);
-    a
-}
-fn progress(line: &str) -> Option<(f32, String)> {
-    let mut p = line.strip_prefix("PROGRESS|")?.split('|');
-    let n = p.next()?.trim().trim_end_matches('%').parse::<f32>().ok()?;
-    Some((
-        (n / 100.0).clamp(0.0, 1.0),
-        format!(
-            "{}  ·  ETA {}",
-            p.next().unwrap_or("—").trim(),
-            p.next().unwrap_or("—").trim()
-        ),
-    ))
-}
-fn stop(r: &Running) {
-    r.cancel.store(true, Ordering::SeqCst);
-    if let Some(pid) = *r.pid.lock().unwrap() {
-        unsafe {
-            libc::kill(-(pid as i32), libc::SIGKILL);
-        }
-    }
-}
-fn worker(
-    index: usize,
-    job: Job,
-    tx: mpsc::Sender<Event>,
-    cancel: Arc<AtomicBool>,
-    pid: Arc<Mutex<Option<u32>>>,
-) {
-    thread::spawn(move || {
-        if let Err(e) = std::fs::create_dir_all(&job.settings.folder) {
-            let _ = tx.send(Event::Line(
-                index,
-                format!("ERROR: Cannot create destination: {e}"),
-            ));
-            let _ = tx.send(Event::Done(index, false, false));
-            return;
-        }
-        let mut command = Command::new(tool("yt-dlp"));
-        command
-            .args(args(&job))
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .process_group(0);
-        match command.spawn() {
-            Ok(mut child) => {
-                *pid.lock().unwrap() = Some(child.id());
-                if cancel.load(Ordering::SeqCst) {
-                    unsafe {
-                        libc::kill(-(child.id() as i32), libc::SIGKILL);
-                    }
-                }
-                let out = child.stdout.take().unwrap();
-                let err = child.stderr.take().unwrap();
-                let t = tx.clone();
-                let reader = thread::spawn(move || {
-                    for line in BufReader::new(out).lines().map_while(Result::ok) {
-                        let _ = t.send(Event::Line(index, line));
-                    }
-                });
-                let t = tx.clone();
-                let errors = thread::spawn(move || {
-                    for line in BufReader::new(err).lines().map_while(Result::ok) {
-                        let _ = t.send(Event::Line(index, line));
-                    }
-                });
-                let ok = child.wait().map(|s| s.success()).unwrap_or(false);
-                *pid.lock().unwrap() = None;
-                let _ = reader.join();
-                let _ = errors.join();
-                let _ = tx.send(Event::Done(index, ok, cancel.load(Ordering::SeqCst)));
-            }
-            Err(e) => {
-                let _ = tx.send(Event::Line(
-                    index,
-                    format!("ERROR: Download engine could not start: {e}"),
-                ));
-                let _ = tx.send(Event::Done(index, false, false));
-            }
-        }
-    });
 }
 impl Hamster {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
@@ -348,7 +231,7 @@ impl Hamster {
             .and_then(|b| serde_json::from_slice(&b).ok())
             .unwrap_or_default();
         for j in &mut saved.jobs {
-            if j.status == "Downloading" || j.status == "Queued" {
+            if ["Downloading", "Converting", "Queued"].contains(&j.status.as_str()) {
                 j.status = "Paused".into();
                 j.detail = "Interrupted last session. Resume to continue partial downloads.".into();
             }
@@ -367,6 +250,12 @@ impl Hamster {
             rx,
             log: VecDeque::new(),
             show_log: false,
+            catalog: None,
+            probe_generation: 0,
+            observed_url: String::new(),
+            probe_job: None,
+            probe_due: None,
+            track_message: String::new(),
         }
     }
     fn persist(&self) {
@@ -382,6 +271,7 @@ impl Hamster {
         }
     }
     fn add(&mut self) {
+        self.inspect_input();
         let links: Vec<_> = self
             .input
             .lines()
@@ -403,12 +293,21 @@ impl Hamster {
             self.message = "Choose an absolute destination folder.".into();
             return;
         }
+        let mut settings = self.saved.settings.clone();
+        // Original is explicit when the site identifies it; otherwise retain its default.
+        if settings.audio_language.is_none() {
+            settings.audio_language = self
+                .catalog
+                .as_ref()
+                .and_then(|m| m.tracks.iter().find(|t| t.original))
+                .map(|t| t.code.clone());
+        }
         for u in links {
             let i = self.saved.jobs.len();
             self.saved.jobs.push(Job {
                 title: String::new(),
                 url: u,
-                settings: self.saved.settings.clone(),
+                settings: settings.clone(),
                 status: "Queued".into(),
                 progress: 0.,
                 detail: "Waiting to download".into(),
@@ -419,9 +318,73 @@ impl Hamster {
         self.message.clear();
         self.persist();
     }
+    fn inspect_input(&mut self) {
+        let url = self
+            .input
+            .lines()
+            .map(str::trim)
+            .find(|l| !l.is_empty())
+            .unwrap_or("")
+            .to_string();
+        if url != self.observed_url {
+            if let Some(r) = self.probe_job.take() {
+                stop(&r);
+            }
+            self.probe_generation = self.probe_generation.wrapping_add(1);
+            self.observed_url = url.clone();
+            self.catalog = None;
+            self.track_message.clear();
+            self.saved.settings.audio_language = None;
+            self.probe_due = valid_url(&url).then(|| Instant::now() + Duration::from_millis(700));
+        }
+        if self.probe_due.is_some_and(|due| Instant::now() >= due) {
+            self.probe_due = None;
+            self.start_probe();
+        }
+    }
+    fn start_probe(&mut self) {
+        if !valid_url(&self.observed_url) {
+            return;
+        }
+        if let Some(r) = self.probe_job.take() {
+            stop(&r);
+        }
+        self.probe_generation = self.probe_generation.wrapping_add(1);
+        let r = Running::new(self.probe_generation);
+        engine::probe(self.observed_url.clone(), r.clone(), self.tx.clone());
+        self.probe_job = Some(r);
+        self.track_message = "Checking available audio tracks…".into();
+    }
     fn tick(&mut self) {
+        self.inspect_input();
         while let Ok(e) = self.rx.try_recv() {
             match e {
+                Event::Metadata(generation, url, result) => {
+                    if generation != self.probe_generation || url != self.observed_url {
+                        continue;
+                    }
+                    self.probe_job = None;
+                    match result {
+                        Ok(info) => {
+                            self.track_message = if info.tracks.is_empty() {
+                                "The site did not list alternate audio languages.".into()
+                            } else {
+                                format!("{} available audio language(s)", info.tracks.len())
+                            };
+                            self.catalog = Some(info);
+                        }
+                        Err(e) => {
+                            self.track_message="Could not check audio tracks. You can retry or use the site default.".into();
+                            self.log.push_back(e);
+                        }
+                    }
+                }
+                Event::Stage(i, detail) => {
+                    if let Some(j) = self.saved.jobs.get_mut(i) {
+                        j.status = "Converting".into();
+                        j.detail = detail;
+                    }
+                }
                 Event::Line(i, line) => {
                     if self.log.len() > 300 {
                         self.log.pop_front();
@@ -433,7 +396,7 @@ impl Hamster {
                             j.detail = d;
                         } else if let Some(title) = line.strip_prefix("TITLE|") {
                             j.title = title.into();
-                        } else if let Some(file) = line.strip_prefix("FILE|") {
+                        } else if let Some(file) = line.strip_prefix("SAVED|") {
                             j.detail = file.into();
                         } else if line.contains("ERROR:") {
                             j.detail = line;
@@ -465,20 +428,9 @@ impl Hamster {
         if self.running.is_none() {
             if let Some(i) = self.queue.pop_front() {
                 self.saved.jobs[i].status = "Downloading".into();
-                let cancel = Arc::new(AtomicBool::new(false));
-                let pid = Arc::new(Mutex::new(None));
-                worker(
-                    i,
-                    self.saved.jobs[i].clone(),
-                    self.tx.clone(),
-                    cancel.clone(),
-                    pid.clone(),
-                );
-                self.running = Some(Running {
-                    index: i,
-                    cancel,
-                    pid,
-                });
+                let r = Running::new(i);
+                worker(i, self.saved.jobs[i].clone(), self.tx.clone(), r.clone());
+                self.running = Some(r);
                 self.persist();
             }
         }
@@ -487,6 +439,9 @@ impl Hamster {
 impl Drop for Hamster {
     fn drop(&mut self) {
         if let Some(r) = &self.running {
+            stop(r);
+        }
+        if let Some(r) = &self.probe_job {
             stop(r);
         }
         self.persist();
@@ -540,47 +495,46 @@ impl eframe::App for Hamster {
                         .spawn();
                 }
                 ui.checkbox(&mut self.show_log, "Engine log");
-                ui.add_space(18.);
-                ui.label("Appearance");
-                let before = self.saved.settings.appearance;
-                egui::ComboBox::from_id_salt("appearance")
-                    .width(145.)
-                    .selected_text(before.label())
-                    .show_ui(ui, |ui| {
-                        for mode in [Appearance::Automatic, Appearance::Light, Appearance::Dark] {
-                            ui.selectable_value(
-                                &mut self.saved.settings.appearance,
-                                mode,
-                                mode.label(),
-                            );
-                        }
-                    });
-                if before != self.saved.settings.appearance {
-                    ctx.set_theme(self.saved.settings.appearance.preference());
-                    self.persist();
-                }
-                if self.saved.settings.appearance == Appearance::Automatic {
-                    ui.label(RichText::new("Follows your Mac").small().color(muted));
-                }
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                     ui.add_space(18.);
                     ui.label(
-                        RichText::new("Hamster Video 0.1\nIndependent Rust app")
+                        RichText::new("Hamster Video 0.2\nUniversal Mac app")
                             .small()
                             .color(muted),
                     );
                 });
             });
         egui::CentralPanel::default().show(ctx,|ui|{
-   ui.add_space(20.);ui.heading(RichText::new("Bring your videos home.").size(30.));ui.label(RichText::new("Save a link. Choose your quality. Keep watching offline.").color(muted));ui.add_space(16.);
+   ui.add_space(12.);
+   ui.horizontal(|ui|{ui.heading(RichText::new("Bring your videos home.").size(28.));ui.with_layout(egui::Layout::right_to_left(egui::Align::Center),|ui|{if appearance_button(ui,self.saved.settings.appearance){self.saved.settings.appearance=self.saved.settings.appearance.next();ctx.set_theme(self.saved.settings.appearance.preference());self.persist();}});});ui.label(RichText::new("Paste a link. Choose your quality. Keep watching offline.").color(muted));ui.add_space(16.);
    egui::Frame::group(ui.style()).inner_margin(18.).show(ui,|ui|{
     ui.horizontal(|ui|{ui.label(RichText::new("NEW DOWNLOAD").strong().color(accent));if ui.small_button("Paste clipboard").clicked(){if let Ok(o)=Command::new("/usr/bin/pbpaste").output(){self.input=String::from_utf8_lossy(&o.stdout).trim().into();}}});
     ui.add(egui::TextEdit::multiline(&mut self.input).hint_text("https://…\nOne video or playlist link per line").desired_rows(2).desired_width(f32::INFINITY));
     ui.horizontal_wrapped(|ui|{
      ui.label("Save as");egui::ComboBox::from_id_salt("format").selected_text(if self.saved.settings.audio{"MP3 audio"}else{"Video"}).show_ui(ui,|ui|{ui.selectable_value(&mut self.saved.settings.audio,false,"Video");ui.selectable_value(&mut self.saved.settings.audio,true,"MP3 audio");});
-     ui.add_enabled_ui(!self.saved.settings.audio,|ui|{ui.checkbox(&mut self.saved.settings.mp4,"MP4").on_hover_text("Uncheck for MKV and broader codec availability. Files without reported resolution retain their original quality.");egui::ComboBox::from_id_salt("quality").selected_text(format!("Up to {}p",self.saved.settings.quality)).show_ui(ui,|ui|{for (n,s) in [(2160,"4K · 2160p"),(1440,"1440p"),(1080,"1080p"),(720,"720p"),(480,"480p")]{ui.selectable_value(&mut self.saved.settings.quality,n,s);}});});
-     ui.checkbox(&mut self.saved.settings.playlist,"Whole playlist");ui.checkbox(&mut self.saved.settings.subtitles,"Subtitles (EN/NL)");
+     ui.add_enabled_ui(!self.saved.settings.audio,|ui|{egui::ComboBox::from_id_salt("quality").selected_text(format!("Up to {}p",self.saved.settings.quality)).show_ui(ui,|ui|{for (n,s) in [(2160,"4K · 2160p"),(1440,"1440p"),(1080,"1080p"),(720,"720p"),(480,"480p")]{ui.selectable_value(&mut self.saved.settings.quality,n,s);}});});
+     ui.checkbox(&mut self.saved.settings.playlist,"Whole playlist");
     });
+    if !self.saved.settings.audio {
+        ui.label(RichText::new("Video compatibility").strong());
+        ui.vertical(|ui|{
+            ui.spacing_mut().item_spacing.y=5.;
+            ui.radio_value(&mut self.saved.settings.compatibility,Compatibility::Apple,"Apple compatible (H.264 / MP4) — Recommended");
+            ui.radio_value(&mut self.saved.settings.compatibility,Compatibility::Original,"Original quality — Keep the source codec");
+            ui.radio_value(&mut self.saved.settings.compatibility,Compatibility::Hevc,"High efficiency (HEVC / H.265) — Smaller files when supported");
+        });
+    }
+    ui.horizontal_wrapped(|ui|{
+        ui.label("Audio language");
+        let selected=self.saved.settings.audio_language.as_deref().map(engine::language_name).unwrap_or_else(||"Original / site default".into());
+        egui::ComboBox::from_id_salt("audio-language").width(225.).selected_text(selected).show_ui(ui,|ui|{
+            ui.selectable_value(&mut self.saved.settings.audio_language,None,"Original / site default");
+            if let Some(info)=&self.catalog {for track in &info.tracks {ui.selectable_value(&mut self.saved.settings.audio_language,Some(track.code.clone()),format!("{}{}",track.label,if track.original{" · Original"}else{""}));}}
+        });
+        if self.probe_job.is_some(){ui.spinner();}else if ui.add_enabled(valid_url(&self.observed_url),egui::Button::new("Check tracks").small()).clicked(){self.start_probe();}
+    });
+    if !self.track_message.is_empty(){ui.label(RichText::new(&self.track_message).small().color(muted));}
+    if self.input.lines().filter(|l|!l.trim().is_empty()).count()>1 || self.saved.settings.playlist {ui.label(RichText::new("Tracks shown for the first video. Your chosen language must be available in each video.").small().color(muted));}
     ui.horizontal(|ui|{ui.label("Folder");ui.add(egui::TextEdit::singleline(&mut self.saved.settings.folder).desired_width((ui.available_width()-100.).max(100.)));if ui.button("Choose…").clicked(){if let Ok(o)=Command::new("/usr/bin/osascript").args(["-e","POSIX path of (choose folder with prompt \"Save Hamster downloads to\")"]).output(){if o.status.success(){self.saved.settings.folder=String::from_utf8_lossy(&o.stdout).trim().into();self.persist();}}}});
     ui.horizontal(|ui|{if ui.add(egui::Button::new(RichText::new("Add to downloads").strong().color(Color32::from_rgb(10,30,26))).fill(ACCENT)).clicked(){self.add();}ui.label(RichText::new("Quality depends on the source.").small().color(muted));});
     if !self.message.is_empty(){ui.colored_label(Color32::from_rgb(255,180,110),&self.message);}
@@ -591,8 +545,8 @@ impl eframe::App for Hamster {
    egui::ScrollArea::vertical().id_salt("jobs").show(ui,|ui|{
     if self.saved.jobs.is_empty(){ui.add_space(35.);ui.vertical_centered(|ui|{ui.label(RichText::new("Your hamster is ready.").size(23.).color(muted));ui.label("Paste your first link above to begin.");});}
     for (i,j) in self.saved.jobs.iter().enumerate().rev(){egui::Frame::group(ui.style()).inner_margin(14.).show(ui,|ui|{
-     ui.horizontal(|ui|{ui.label(RichText::new(&j.status).strong().color(if j.status=="Failed"{Color32::from_rgb(255,145,130)}else{ACCENT}));ui.label(if j.settings.audio{"MP3".into()}else{format!("≤ {}p",j.settings.quality)});ui.with_layout(egui::Layout::right_to_left(egui::Align::Center),|ui|{if ["Paused","Failed"].contains(&j.status.as_str()){if ui.small_button("Resume / retry").clicked(){resume=Some(i);}}if ["Downloading","Queued"].contains(&j.status.as_str()) && ui.small_button("Pause").clicked(){pause=Some(i);}if j.status=="Complete" && ui.small_button("Show folder").clicked(){let _=Command::new("/usr/bin/open").arg(&j.settings.folder).spawn();}});});
-     if !j.title.is_empty(){ui.label(RichText::new(&j.title).size(16.).strong());}ui.add(egui::Label::new(RichText::new(&j.url).size(14.)).truncate());ui.add(egui::ProgressBar::new(j.progress).fill(ACCENT).show_percentage().animate(j.status=="Downloading"));ui.add(egui::Label::new(RichText::new(&j.detail).small().color(muted)).wrap());
+     ui.horizontal(|ui|{ui.label(RichText::new(&j.status).strong().color(if j.status=="Failed"{Color32::from_rgb(255,145,130)}else{ACCENT}));ui.label(if j.settings.audio{"MP3".into()}else{format!("≤ {}p",j.settings.quality)});ui.with_layout(egui::Layout::right_to_left(egui::Align::Center),|ui|{if ["Paused","Failed"].contains(&j.status.as_str()){if ui.small_button("Resume / retry").clicked(){resume=Some(i);}}if ["Downloading","Converting","Queued"].contains(&j.status.as_str()) && ui.small_button("Pause").clicked(){pause=Some(i);}if j.status=="Complete" && ui.small_button("Show folder").clicked(){let _=Command::new("/usr/bin/open").arg(&j.settings.folder).spawn();}});});
+     if !j.title.is_empty(){ui.label(RichText::new(&j.title).size(16.).strong());}ui.add(egui::Label::new(RichText::new(&j.url).size(14.)).truncate());if j.status=="Converting"{ui.spinner();}ui.add(egui::ProgressBar::new(j.progress).fill(ACCENT).show_percentage().animate(j.status=="Downloading"));ui.add(egui::Label::new(RichText::new(&j.detail).small().color(muted)).wrap());
     });}
    });
    if let Some(i)=resume{self.saved.jobs[i].status="Queued".into();self.queue.push_back(i);self.persist();}
@@ -613,7 +567,15 @@ fn main() -> eframe::Result {
         if let Some(q) = cli.iter().find_map(|s| s.strip_prefix("--quality=")) {
             settings.quality = q.parse().unwrap_or(2160);
         }
-        settings.mp4 = !cli.iter().any(|s| s == "--mkv");
+        settings.compatibility = match cli.iter().find_map(|s| s.strip_prefix("--compatibility=")) {
+            Some("original") => Compatibility::Original,
+            Some("hevc") => Compatibility::Hevc,
+            _ => Compatibility::Apple,
+        };
+        settings.audio_language = cli
+            .iter()
+            .find_map(|s| s.strip_prefix("--language="))
+            .map(String::from);
         let job = Job {
             title: String::new(),
             url: cli[2].clone(),
@@ -623,18 +585,41 @@ fn main() -> eframe::Result {
             detail: String::new(),
         };
         let (tx, rx) = mpsc::channel();
-        worker(
-            0,
-            job,
-            tx,
-            Arc::new(AtomicBool::new(false)),
-            Arc::new(Mutex::new(None)),
-        );
+        let running = Running::new(0);
+        worker(0, job, tx, running.clone());
         loop {
             match rx.recv_timeout(Duration::from_secs(180)) {
                 Ok(Event::Line(_, s)) => println!("{s}"),
                 Ok(Event::Done(_, ok, _)) => std::process::exit(if ok { 0 } else { 1 }),
-                Err(_) => std::process::exit(3),
+                Ok(Event::Stage(_, s)) => println!("{s}"),
+                Ok(Event::Metadata(_, _, _)) => {}
+                Err(_) => {
+                    stop(&running);
+                    std::process::exit(3)
+                }
+            }
+        }
+    }
+    if cli.get(1).map(String::as_str) == Some("--check-tracks") {
+        let url = cli
+            .get(2)
+            .filter(|u| valid_url(u))
+            .expect("Supply an HTTP(S) video URL");
+        let (tx, rx) = mpsc::channel();
+        let r = Running::new(0);
+        engine::probe(url.clone(), r.clone(), tx);
+        match rx.recv_timeout(Duration::from_secs(100)) {
+            Ok(Event::Metadata(_, _, Ok(info))) => {
+                println!("{}", serde_json::to_string_pretty(&info).unwrap());
+                return Ok(());
+            }
+            Ok(Event::Metadata(_, _, Err(e))) => {
+                eprintln!("{e}");
+                std::process::exit(1)
+            }
+            _ => {
+                stop(&r);
+                std::process::exit(3)
             }
         }
     }
@@ -646,115 +631,12 @@ fn main() -> eframe::Result {
                     eframe::icon_data::from_png_bytes(include_bytes!("../assets/hamster-icon.png"))
                         .expect("bundled icon"),
                 )
-                .with_inner_size([1080., 760.])
-                .with_min_inner_size([860., 650.]),
+                .with_inner_size([1120., 870.])
+                .with_min_inner_size([960., 820.]),
             ..Default::default()
         },
         Box::new(|cc| Ok(Box::new(Hamster::new(cc)))),
     )
 }
 #[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn appearance_round_trips_and_system_tracks_os() {
-        let ctx = egui::Context::default();
-        configure_styles(&ctx);
-        for mode in [Appearance::Dark, Appearance::Light, Appearance::Automatic] {
-            let mut settings = Settings::default();
-            settings.appearance = mode;
-            let saved: Settings =
-                serde_json::from_str(&serde_json::to_string(&settings).unwrap()).unwrap();
-            assert_eq!(saved.appearance, mode);
-            ctx.set_theme(mode.preference());
-            for system in [egui::Theme::Light, egui::Theme::Dark] {
-                let _ = ctx.run(
-                    egui::RawInput {
-                        system_theme: Some(system),
-                        ..Default::default()
-                    },
-                    |_| {},
-                );
-                let expected = match mode {
-                    Appearance::Dark => egui::Theme::Dark,
-                    Appearance::Light => egui::Theme::Light,
-                    Appearance::Automatic => system,
-                };
-                assert_eq!(ctx.theme(), expected);
-            }
-        }
-        let old: Settings = serde_json::from_str(r#"{"folder":"/tmp/existing"}"#).unwrap();
-        assert_eq!(old.appearance, Appearance::Automatic);
-        assert_eq!(old.folder, "/tmp/existing");
-    }
-    #[test]
-    fn cancellation_terminates_own_process_group() {
-        let mut child = Command::new("/bin/sleep")
-            .arg("30")
-            .process_group(0)
-            .spawn()
-            .unwrap();
-        let r = Running {
-            index: 0,
-            cancel: Arc::new(AtomicBool::new(false)),
-            pid: Arc::new(Mutex::new(Some(child.id()))),
-        };
-        stop(&r);
-        assert!(!child.wait().unwrap().success());
-        assert!(r.cancel.load(Ordering::SeqCst));
-    }
-    #[test]
-    fn urls_reject_local_files_and_options() {
-        for s in [
-            "file:///etc/passwd",
-            "--exec=touch /tmp/x",
-            "javascript:alert(1)",
-            "https://user:pass@example.com/a",
-            "",
-        ] {
-            assert!(!valid_url(s));
-        }
-        assert!(valid_url("https://example.com/watch?v=1&x=2"));
-    }
-    #[test]
-    fn progress_handles_noise() {
-        assert_eq!(progress("PROGRESS| 42.5%|2MiB/s|00:03").unwrap().0, 0.425);
-        assert!(progress("PROGRESS|N/A|N/A|N/A").is_none());
-        assert!(progress("WARNING: unavailable").is_none());
-    }
-    #[test]
-    fn command_preserves_url_as_single_final_argument() {
-        let j = Job {
-            title: String::new(),
-            url: "https://example.com/v?a=1&b=$(touch nope)".into(),
-            settings: Settings::default(),
-            status: String::new(),
-            progress: 0.,
-            detail: String::new(),
-        };
-        let a = args(&j);
-        assert_eq!(a[a.len() - 2], "--");
-        assert_eq!(a.last().unwrap(), &j.url);
-        assert!(a.contains(&"--no-playlist".into()));
-        assert!(
-            a.contains(&"bv*[ext=mp4][height<=?2160]+ba[ext=m4a]/b[ext=mp4][height<=?2160]".into())
-        );
-    }
-    #[test]
-    fn audio_and_playlist_flags() {
-        let mut j = Job {
-            title: String::new(),
-            url: "https://example.com".into(),
-            settings: Settings::default(),
-            status: String::new(),
-            progress: 0.,
-            detail: String::new(),
-        };
-        j.settings.audio = true;
-        j.settings.playlist = true;
-        let a = args(&j);
-        assert!(a.contains(&"--yes-playlist".into()));
-        assert!(a.contains(&"mp3".into()));
-        assert!(!a.contains(&"--merge-output-format".into()));
-    }
-}
+mod tests;

@@ -1,18 +1,38 @@
 {
   "yt-dlp": {
+    "version": "2026.10.26",
     "sha256": "e8faad7f104d09799be235151c0038056664634732c82307eef78e58b8274a41",
-    "bytes": 10661280
-  },
-  "ffmpeg": {
-    "sha256": "115a05dd173ce5a62cd02d84267aea08993ebec46fab5658abdbd624d193725a",
-    "bytes": 4179688
-  },
-  "ffprobe": {
-    "sha256": "41801de75120b143e353fbffb1040c6c51bde3bce7314513bc2d9b06057e2583",
-    "bytes": 4125440
+    "bytes": 10661280,
+    "architectures": [
+      "x86_64",
+      "arm64"
+    ]
   },
   "deno": {
-    "sha256": "5d206ba69742549cc161db06e86f1d93c5622e1dbc8ba9d15a618e538fbc92f4",
-    "bytes": 98799200
+    "version": "2.9.8",
+    "sha256": "a2d59efe406d0104ee7692b6b197cbd4fced313b2108809d5a64c8edd36ea073",
+    "bytes": 180343040,
+    "architectures": [
+      "x86_64",
+      "arm64"
+    ]
+  },
+  "ffmpeg": {
+    "version": "7.1.1 + LAME 3.100 + dav1d 1.5.4",
+    "sha256": "47b1a52d7aa1011aa2ac89e3dcc0a96e53c970fde7f0f716c70878c31af93241",
+    "bytes": 17141120,
+    "architectures": [
+      "x86_64",
+      "arm64"
+    ]
+  },
+  "ffprobe": {
+    "version": "7.1.1 + LAME 3.100 + dav1d 1.5.4",
+    "sha256": "509509c0b35d6efbb252ee91466a7120fab291e2baa65a6d7f5b68fc3334567c",
+    "bytes": 17033216,
+    "architectures": [
+      "x86_64",
+      "arm64"
+    ]
   }
 }
