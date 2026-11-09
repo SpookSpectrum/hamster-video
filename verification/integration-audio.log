@@ -1,0 +1,12 @@
+TITLE|sample
+PROGRESS|  0.2%| Unknown B/s|Unknown
+PROGRESS|  0.6%| Unknown B/s|Unknown
+PROGRESS|  1.4%|   5.60MiB/s|00:00
+PROGRESS|  3.0%|   9.43MiB/s|00:00
+PROGRESS|  6.2%|  16.07MiB/s|00:00
+PROGRESS| 12.5%|  27.82MiB/s|00:00
+PROGRESS| 25.3%|  48.83MiB/s|00:00
+PROGRESS| 50.8%|  82.40MiB/s|00:00
+PROGRESS|100.0%| 133.39MiB/s|00:00
+PROGRESS|100.0%|77.56MiB/s|NA
+FILE|/path/to/project/work/test-audio/sample [sample].mp3

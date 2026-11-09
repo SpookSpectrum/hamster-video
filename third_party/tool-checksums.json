@@ -1,0 +1,18 @@
+{
+  "yt-dlp": {
+    "sha256": "e8faad7f104d09799be235151c0038056664634732c82307eef78e58b8274a41",
+    "bytes": 10661280
+  },
+  "ffmpeg": {
+    "sha256": "115a05dd173ce5a62cd02d84267aea08993ebec46fab5658abdbd624d193725a",
+    "bytes": 4179688
+  },
+  "ffprobe": {
+    "sha256": "41801de75120b143e353fbffb1040c6c51bde3bce7314513bc2d9b06057e2583",
+    "bytes": 4125440
+  },
+  "deno": {
+    "sha256": "5d206ba69742549cc161db06e86f1d93c5622e1dbc8ba9d15a618e538fbc92f4",
+    "bytes": 98799200
+  }
+}
