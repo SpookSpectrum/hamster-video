@@ -112,6 +112,16 @@
       .button { transition: none; }
     }
   </style>
+  <script>
+    // Keep the address bar free of referral tracking parameters.
+    (() => {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('utm_source') === 'chatgpt.com') {
+        url.searchParams.delete('utm_source');
+        window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+      }
+    })();
+  </script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
