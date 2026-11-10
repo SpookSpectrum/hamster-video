@@ -1,1 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#fbfaf8">
+  <meta name="description" content="Hamster Video is a simple, fast and completely free macOS video downloader. Save videos in up to 4K, extract MP3 audio and choose available audio languages.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Hamster Video — Bring your videos home.">
+  <meta property="og:description" content="A simple, fast and completely free video downloader for macOS. Up to 4K, MP3 audio and your choice of available audio tracks.">
+  <meta property="og:image" content="https://spookspectrum.github.io/hamster-video/assets/hamster-icon.png">
+  <meta property="og:url" content="https://spookspectrum.github.io/hamster-video/">
+  <link rel="icon" href="./assets/hamster-icon.png" type="image/png">
+  <title>Hamster Video — A free video downloader for macOS</title>
+  <style>
+    :root {
+      --bg: #fbfaf8;
+      --ink: #242326;
+      --muted: #68666b;
+      --border: #eae6e3;
+      --peach: #f7e5da;
+      --coral: #ce7955;
+      --white: #fff;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased; line-height: 1.55;
+    }
+    a { color: inherit; }
+    a:focus-visible, summary:focus-visible { outline: 3px solid var(--coral); outline-offset: 4px; border-radius: 4px; }
+    .container { width: min(100% - 40px, 1040px); margin: auto; }
+    .skip { position: absolute; left: -9999px; top: 12px; z-index: 10; background: var(--white); padding: 12px; }
+    .skip:focus { left: 12px; }
+    header { border-bottom: 1px solid rgba(105,95,90,.1); background: rgba(251,250,248,.96); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 76px; }
+    .brand { display: flex; gap: 11px; align-items: center; text-decoration: none; font-weight: 750; letter-spacing: -.03em; font-size: 19px; }
+    .brand img { width: 37px; height: 37px; border-radius: 10px; }
+    .navlinks { display: flex; align-items: center; gap: 29px; font-size: 14px; font-weight: 600; }
+    .navlinks a { color: var(--muted); text-decoration: none; }
+    .navlinks a:hover { color: var(--ink); }
+    .navlinks .nav-cta { color: var(--ink); border: 1px solid #dad5d1; border-radius: 999px; padding: 9px 17px; }
+    main { overflow: hidden; }
+    .hero { text-align: center; padding: 91px 0 105px; position: relative; }
+    .hero:before { content: ""; position: absolute; inset: -80px -160px auto; margin: auto; width: 680px; height: 500px; background: radial-gradient(ellipse,rgba(248,222,205,.38),transparent 70%); pointer-events: none; z-index: 0; }
+    .hero-inner { position: relative; z-index: 1; }
+    .app-icon { width: 124px; height: 124px; border-radius: 28px; box-shadow: 0 14px 34px rgba(118,64,34,.13); }
+    .eyebrow { margin: 27px 0 10px; text-transform: uppercase; font-size: 12px; letter-spacing: .19em; font-weight: 760; color: #a6684e; }
+    h1 { margin: 0; font-size: clamp(52px,7.5vw,88px); line-height: 1.07; letter-spacing: -.069em; font-weight: 760; }
+    .tagline { font-size: clamp(25px,3.4vw,35px); letter-spacing: -.038em; margin: 13px 0 16px; font-weight: 590; }
+    .lead { font-size: clamp(17px,2vw,20px); max-width: 620px; color: var(--muted); margin: 0 auto 11px; }
+    .explain { max-width: 660px; font-size: 16px; color: var(--muted); margin: 0 auto; }
+    .actions { display: flex; justify-content: center; margin: 33px 0 13px; }
+    .button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+      background: var(--ink); color: #fff; font-size: 16px; font-weight: 690;
+      padding: 17px 28px; border-radius: 15px; text-decoration: none;
+      box-shadow: 0 7px 20px rgba(35,31,31,.15);
+      transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+    }
+    .button:hover { background: #403a37; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(35,31,31,.2); }
+    .button svg { width: 20px; height: 20px; }
+    .requirements { color: #7c7979; font-size: 13px; margin: 0; }
+    .hero-links { display: flex; justify-content: center; gap: 23px; margin-top: 22px; font-size: 14px; font-weight: 580; }
+    .hero-links a { text-decoration-color: #bdb6b1; text-underline-offset: 5px; }
+    .hero-links a:hover { text-decoration-color: var(--ink); }
+    section.features { padding: 36px 0 92px; }
+    .section-title { text-align: center; font-size: clamp(27px,4vw,38px); line-height: 1.2; letter-spacing: -.045em; margin: 0 0 12px; }
+    .section-sub { color: var(--muted); text-align: center; max-width: 620px; margin: 0 auto 37px; }
+    .cards { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; }
+    .card { background: var(--white); padding: 26px 23px; border: 1px solid var(--border); border-radius: 21px; min-height: 220px; box-shadow: 0 8px 30px rgba(34,24,18,.025); }
+    .symbol { display: inline-flex; background: #fbede5; border-radius: 13px; width: 48px; height: 48px; align-items: center; justify-content: center; color: #9d6249; }
+    .symbol svg { width: 25px; height: 25px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .card h3 { font-size: 19px; letter-spacing: -.025em; margin: 17px 0 5px; line-height: 1.25; }
+    .card p { font-size: 14px; color: var(--muted); margin: 0; }
+    .details { padding: 85px 0; background: var(--white); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .steps { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 48px; margin-top: 40px; }
+    .step-number { display: inline-block; color: #b47759; font-size: 13px; font-weight: 750; letter-spacing: .12em; }
+    .steps h3 { margin: 10px 0 7px; font-size: 20px; letter-spacing: -.025em; }
+    .steps p { margin: 0; color: var(--muted); font-size: 15px; }
+    .bottom { padding: 90px 0 83px; text-align: center; }
+    .bottom .section-sub { margin-bottom: 0; }
+    .bottom .actions { margin-top: 28px; }
+    .note { max-width: 730px; margin: 48px auto 0; color: var(--muted); font-size: 13px; text-align: left; border-top: 1px solid var(--border); padding-top: 18px; }
+    .note summary { cursor: pointer; font-weight: 650; color: var(--ink); }
+    .note p { margin: 9px 0 0; }
+    footer { border-top: 1px solid var(--border); padding: 23px 0 30px; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+    .footer-inner nav { display: flex; gap: 21px; }
+    .footer-inner a { text-underline-offset: 3px; }
+    @media (max-width: 880px) {
+      .cards { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .card { min-height: 200px; }
+      .steps { gap: 26px; }
+    }
+    @media (max-width: 580px) {
+      .container { width: min(100% - 32px,1040px); }
+      .nav { min-height: 67px; }
+      .brand { font-size: 17px; }
+      .navlinks { gap: 14px; font-size: 13px; }
+      .navlinks a:first-child { display: none; }
+      .hero { padding: 67px 0 67px; }
+      .app-icon { width: 108px; height: 108px; border-radius: 25px; }
+      h1 { font-size: clamp(46px,12vw,64px); }
+      .lead { font-size: 17px; }
+      .cards { gap: 12px; }
+      .card { padding: 19px 16px; min-height: 211px; }
+      .card h3 { font-size: 17px; }
+      .symbol { width: 42px; height: 42px; }
+      section.features { padding-bottom: 65px; }
+      .details { padding: 62px 0; }
+      .steps { grid-template-columns: 1fr; gap: 28px; }
+      .bottom { padding: 70px 0 65px; }
+      .footer-inner { align-items: flex-start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .button { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="./" aria-label="Hamster Video home">
+        <img src="./assets/hamster-icon.png" alt="">
+        <span>Hamster Video</span>
+      </a>
+      <nav class="navlinks" aria-label="Main navigation">
+        <a href="#features">Features</a>
+        <a href="https://github.com/SpookSpectrum/hamster-video" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a class="nav-cta" href="#download">Download</a>
+      </nav>
+    </div>
+  </header>
 
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-inner">
+        <img class="app-icon" src="./assets/hamster-icon.png" alt="Hamster Video app icon" width="124" height="124">
+        <p class="eyebrow">Made for macOS</p>
+        <h1>Hamster Video</h1>
+        <p class="tagline">Bring your videos home.</p>
+        <p class="lead">A simple, fast, and completely free video downloader for Mac.</p>
+        <p class="explain">Save videos from YouTube, Instagram, TikTok, Vimeo, and more in up to 4K. Get just the audio as MP3, and choose your preferred audio language when available.</p>
+        <div class="actions">
+          <a class="button" href="https://github.com/SpookSpectrum/hamster-video/releases/download/v0.2.2-beta/HamsterVideo-0.2.2-beta-Universal.dmg" aria-label="Download Hamster Video for Mac, free">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5"/><path d="M5 17v3h14v-3"/></svg>
+            Download for Mac — Free
+          </a>
+        </div>
+        <p class="requirements">Apple Silicon &amp; Intel · macOS 15 or later</p>
+        <div class="hero-links">
+          <a href="https://github.com/SpookSpectrum/hamster-video">View on GitHub</a>
+          <a href="https://github.com/SpookSpectrum/hamster-video/releases">Release notes</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="container">
+        <h2 class="section-title">Everything you need. Nothing you don't.</h2>
+        <p class="section-sub">Save your favourite content with the options that matter, without subscriptions or complicated setup.</p>
+        <div class="cards">
+          <article class="card">
+            <div class="symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3V9Z"/><path d="M7 5v14M17 5v14"/></svg></div>
+            <h3>Up to 4K</h3>
+            <p>Keep videos looking their best, with high-resolution downloads when available.</p>
+          </article>
+          <article class="card">
+            <div class="symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+            <h3>Just the audio</h3>
+            <p>Save music, talks, and more as MP3 files — no video needed.</p>
+          </article>
+          <article class="card">
+            <div class="symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 4 6 4 9s-1 6-4 9M12 3c-3 3-4 6-4 9s1 6 4 9"/></svg></div>
+            <h3>Your language</h3>
+            <p>Choose from the audio tracks a video offers — Spanish, German, Italian, and more.</p>
+          </article>
+          <article class="card">
+            <div class="symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M12 10v11M4 14h16M12 10c-3-2-6-3-6-5a2.5 2.5 0 0 1 5 0c0 2 1 5 1 5Zm0 0c3-2 6-3 6-5a2.5 2.5 0 0 0-5 0c0 2-1 5-1 5Z"/></svg></div>
+            <h3>Actually free</h3>
+            <p>No subscriptions. No paywalls. Just download and go.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="details" id="how-it-works">
+      <div class="container">
+        <h2 class="section-title">As easy as paste, pick, save.</h2>
+        <p class="section-sub">No account or extra setup required. Hamster Video takes care of the details.</p>
+        <div class="steps">
+          <div><span class="step-number">01</span><h3>Paste a link</h3><p>Copy the URL of a video and drop it into Hamster Video.</p></div>
+          <div><span class="step-number">02</span><h3>Make it yours</h3><p>Choose video quality, MP3 audio, or an available audio language.</p></div>
+          <div><span class="step-number">03</span><h3>Bring it home</h3><p>Save the file to your Mac and enjoy it whenever you like.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bottom" id="download">
+      <div class="container">
+        <h2 class="section-title">Ready to bring your videos home?</h2>
+        <p class="section-sub">One download. All the essentials. Absolutely free.</p>
+        <div class="actions">
+          <a class="button" href="https://github.com/SpookSpectrum/hamster-video/releases/download/v0.2.2-beta/HamsterVideo-0.2.2-beta-Universal.dmg">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5"/><path d="M5 17v3h14v-3"/></svg>
+            Download for Mac — Free
+          </a>
+        </div>
+        <p class="requirements">Apple Silicon &amp; Intel · macOS 15 or later</p>
+        <details class="note">
+          <summary>Installation note for the current beta</summary>
+          <p>The current beta is not Apple-notarized. If macOS blocks the first launch, try opening the app, then go to <strong>System Settings → Privacy &amp; Security</strong> and use the app-specific <strong>Open Anyway</strong> option. Audio language options and maximum resolution depend on the original source. Please download only content you are permitted to save.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>Made for Mac, with a little hamster charm.</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/SpookSpectrum/hamster-video">Source code</a>
+        <a href="https://github.com/SpookSpectrum/hamster-video/releases">Releases</a>
+        <a href="https://github.com/SpookSpectrum/hamster-video/blob/main/LICENSE">License</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
