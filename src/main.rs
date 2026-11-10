@@ -163,6 +163,8 @@ impl Default for Settings {
 }
 #[derive(Clone, Serialize, Deserialize)]
 struct Job {
+    #[serde(default = "engine::new_job_id")]
+    id: String,
     #[serde(default)]
     title: String,
     url: String,
@@ -180,6 +182,7 @@ enum Event {
     Line(usize, String),
     Done(usize, bool, bool),
     Stage(usize, String),
+    Encoding(usize, f32, String),
     Metadata(usize, String, Result<MediaInfo, String>),
 }
 struct Hamster {
@@ -231,6 +234,15 @@ impl Hamster {
             .and_then(|b| serde_json::from_slice(&b).ok())
             .unwrap_or_default();
         for j in &mut saved.jobs {
+            if j.status == "Cancelling" {
+                match engine::cleanup(j) {
+                    Ok(()) => j.status = "Cancelled".into(),
+                    Err(e) => {
+                        j.status = "Failed".into();
+                        j.detail = e;
+                    }
+                }
+            }
             if ["Downloading", "Converting", "Queued"].contains(&j.status.as_str()) {
                 j.status = "Paused".into();
                 j.detail = "Interrupted last session. Resume to continue partial downloads.".into();
@@ -305,6 +317,7 @@ impl Hamster {
         for u in links {
             let i = self.saved.jobs.len();
             self.saved.jobs.push(Job {
+                id: engine::new_job_id(),
                 title: String::new(),
                 url: u,
                 settings: settings.clone(),
@@ -379,8 +392,20 @@ impl Hamster {
                         }
                     }
                 }
+                Event::Encoding(i, p, detail) => {
+                    if let Some(j) = self.saved.jobs.get_mut(i) {
+                        if j.status != "Cancelling" {
+                            j.progress = p;
+                            j.detail = detail;
+                        }
+                    }
+                }
                 Event::Stage(i, detail) => {
                     if let Some(j) = self.saved.jobs.get_mut(i) {
+                        if j.status == "Cancelling" {
+                            continue;
+                        }
+                        j.progress = 0.;
                         j.status = "Converting".into();
                         j.detail = detail;
                     }
@@ -405,7 +430,12 @@ impl Hamster {
                 }
                 Event::Done(i, ok, cancelled) => {
                     if let Some(j) = self.saved.jobs.get_mut(i) {
-                        j.status = if cancelled {
+                        j.status = if cancelled
+                            && self.running.as_ref().is_some_and(|r| {
+                                r.discard.load(std::sync::atomic::Ordering::SeqCst)
+                            }) {
+                            "Cancelled"
+                        } else if cancelled {
                             "Paused"
                         } else if ok {
                             "Complete"
@@ -424,6 +454,9 @@ impl Hamster {
                     self.persist();
                 }
             }
+        }
+        if self.running.is_none() && self.queue.is_empty() {
+            self.saved.jobs.retain(|j| j.status != "Cancelled");
         }
         if self.running.is_none() {
             if let Some(i) = self.queue.pop_front() {
@@ -477,7 +510,14 @@ impl eframe::App for Hamster {
                 ui.label(RichText::new("A home for your videos.").size(16.));
                 ui.add_space(20.);
                 ui.separator();
-                ui.label(format!("{} downloads", self.saved.jobs.len()));
+                ui.label(format!(
+                    "{} downloads",
+                    self.saved
+                        .jobs
+                        .iter()
+                        .filter(|j| j.status != "Cancelled")
+                        .count()
+                ));
                 ui.label(format!(
                     "{} complete",
                     self.saved
@@ -498,7 +538,7 @@ impl eframe::App for Hamster {
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                     ui.add_space(18.);
                     ui.label(
-                        RichText::new("Hamster Video 0.2\nUniversal Mac app")
+                        RichText::new("Hamster Video 0.2.2\nUniversal Mac app")
                             .small()
                             .color(muted),
                     );
@@ -506,7 +546,7 @@ impl eframe::App for Hamster {
             });
         egui::CentralPanel::default().show(ctx,|ui|{
    ui.add_space(12.);
-   ui.horizontal(|ui|{ui.heading(RichText::new("Bring your videos home.").size(28.));ui.with_layout(egui::Layout::right_to_left(egui::Align::Center),|ui|{if appearance_button(ui,self.saved.settings.appearance){self.saved.settings.appearance=self.saved.settings.appearance.next();ctx.set_theme(self.saved.settings.appearance.preference());self.persist();}});});ui.label(RichText::new("Paste a link. Choose your quality. Keep watching offline.").color(muted));ui.add_space(16.);
+   ui.horizontal(|ui|{ui.heading(RichText::new("Bring your videos home").size(28.));ui.with_layout(egui::Layout::right_to_left(egui::Align::Center),|ui|{if appearance_button(ui,self.saved.settings.appearance){self.saved.settings.appearance=self.saved.settings.appearance.next();ctx.set_theme(self.saved.settings.appearance.preference());self.persist();}});});ui.label(RichText::new("Paste a link. Choose your quality. Keep watching offline.").color(muted));ui.add_space(16.);
    egui::Frame::group(ui.style()).inner_margin(18.).show(ui,|ui|{
     ui.horizontal(|ui|{ui.label(RichText::new("NEW DOWNLOAD").strong().color(accent));if ui.small_button("Paste clipboard").clicked(){if let Ok(o)=Command::new("/usr/bin/pbpaste").output(){self.input=String::from_utf8_lossy(&o.stdout).trim().into();}}});
     ui.add(egui::TextEdit::multiline(&mut self.input).hint_text("https://…\nOne video or playlist link per line").desired_rows(2).desired_width(f32::INFINITY));
@@ -521,7 +561,7 @@ impl eframe::App for Hamster {
             ui.spacing_mut().item_spacing.y=5.;
             ui.radio_value(&mut self.saved.settings.compatibility,Compatibility::Apple,"Apple compatible (H.264 / MP4) — Recommended");
             ui.radio_value(&mut self.saved.settings.compatibility,Compatibility::Original,"Original quality — Keep the source codec");
-            ui.radio_value(&mut self.saved.settings.compatibility,Compatibility::Hevc,"High efficiency (HEVC / H.265) — Smaller files when supported");
+            ui.radio_value(&mut self.saved.settings.compatibility,Compatibility::Hevc,"High efficiency (HEVC / H.265) — Size depends on the source");
         });
     }
     ui.horizontal_wrapped(|ui|{
@@ -541,14 +581,19 @@ impl eframe::App for Hamster {
    });
    ui.add_space(12.);ui.horizontal(|ui|{ui.heading("Downloads");if ui.small_button("Clear finished").clicked() && self.running.is_none() && self.queue.is_empty(){self.saved.jobs.retain(|j|j.status!="Complete");self.persist();}});
    if self.show_log {egui::CollapsingHeader::new("Download engine output").default_open(true).show(ui,|ui|{egui::ScrollArea::vertical().id_salt("logs").max_height(130.).stick_to_bottom(true).show(ui,|ui|{for l in &self.log{ui.monospace(l);}});});}
-   let mut resume=None;let mut pause=None;
+   let mut resume=None;let mut pause=None;let mut cancel=None;
    egui::ScrollArea::vertical().id_salt("jobs").show(ui,|ui|{
     if self.saved.jobs.is_empty(){ui.add_space(35.);ui.vertical_centered(|ui|{ui.label(RichText::new("Your hamster is ready.").size(23.).color(muted));ui.label("Paste your first link above to begin.");});}
-    for (i,j) in self.saved.jobs.iter().enumerate().rev(){egui::Frame::group(ui.style()).inner_margin(14.).show(ui,|ui|{
-     ui.horizontal(|ui|{ui.label(RichText::new(&j.status).strong().color(if j.status=="Failed"{Color32::from_rgb(255,145,130)}else{ACCENT}));ui.label(if j.settings.audio{"MP3".into()}else{format!("≤ {}p",j.settings.quality)});ui.with_layout(egui::Layout::right_to_left(egui::Align::Center),|ui|{if ["Paused","Failed"].contains(&j.status.as_str()){if ui.small_button("Resume / retry").clicked(){resume=Some(i);}}if ["Downloading","Converting","Queued"].contains(&j.status.as_str()) && ui.small_button("Pause").clicked(){pause=Some(i);}if j.status=="Complete" && ui.small_button("Show folder").clicked(){let _=Command::new("/usr/bin/open").arg(&j.settings.folder).spawn();}});});
+    for (i,j) in self.saved.jobs.iter().enumerate().rev(){if j.status=="Cancelled"{continue;}egui::Frame::group(ui.style()).inner_margin(14.).show(ui,|ui|{
+     ui.horizontal(|ui|{ui.label(RichText::new(&j.status).strong().color(if j.status=="Failed"{Color32::from_rgb(255,145,130)}else{ACCENT}));ui.label(if j.settings.audio{"MP3".into()}else{format!("≤ {}p",j.settings.quality)});ui.with_layout(egui::Layout::right_to_left(egui::Align::Center),|ui|{if ["Paused","Failed"].contains(&j.status.as_str()){if ui.small_button("Resume / retry").clicked(){resume=Some(i);}}if ["Downloading","Converting","Queued"].contains(&j.status.as_str()) && ui.small_button("Pause").clicked(){pause=Some(i);}if ["Downloading","Converting","Queued","Paused","Failed"].contains(&j.status.as_str()) && ui.small_button("Cancel").on_hover_text("Stop this download and remove its unfinished files").clicked(){cancel=Some(i);}if j.status=="Complete" && ui.small_button("Show folder").clicked(){let _=Command::new("/usr/bin/open").arg(&j.settings.folder).spawn();}});});
      if !j.title.is_empty(){ui.label(RichText::new(&j.title).size(16.).strong());}ui.add(egui::Label::new(RichText::new(&j.url).size(14.)).truncate());if j.status=="Converting"{ui.spinner();}ui.add(egui::ProgressBar::new(j.progress).fill(ACCENT).show_percentage().animate(j.status=="Downloading"));ui.add(egui::Label::new(RichText::new(&j.detail).small().color(muted)).wrap());
     });}
    });
+   if let Some(i)=cancel {
+       if let Some(r)=self.running.as_ref().filter(|r|r.index==i) {engine::cancel(r);self.saved.jobs[i].status="Cancelling".into();self.saved.jobs[i].detail="Stopping and removing unfinished files…".into();}
+       else {self.queue.retain(|n|*n!=i);match engine::cleanup(&self.saved.jobs[i]) {Ok(())=>self.saved.jobs[i].status="Cancelled".into(),Err(e)=>{self.saved.jobs[i].status="Failed".into();self.saved.jobs[i].detail=e;}}}
+       self.persist();
+   }
    if let Some(i)=resume{self.saved.jobs[i].status="Queued".into();self.queue.push_back(i);self.persist();}
    if let Some(i)=pause{if let Some(r)=&self.running {if r.index==i{stop(r);}}if self.queue.contains(&i){self.queue.retain(|n|*n!=i);self.saved.jobs[i].status="Paused".into();self.persist();}}
   });
@@ -577,6 +622,7 @@ fn main() -> eframe::Result {
             .find_map(|s| s.strip_prefix("--language="))
             .map(String::from);
         let job = Job {
+            id: engine::new_job_id(),
             title: String::new(),
             url: cli[2].clone(),
             settings,
@@ -592,6 +638,7 @@ fn main() -> eframe::Result {
                 Ok(Event::Line(_, s)) => println!("{s}"),
                 Ok(Event::Done(_, ok, _)) => std::process::exit(if ok { 0 } else { 1 }),
                 Ok(Event::Stage(_, s)) => println!("{s}"),
+                Ok(Event::Encoding(_, p, s)) => println!("CONVERT|{p}|{s}"),
                 Ok(Event::Metadata(_, _, _)) => {}
                 Err(_) => {
                     stop(&running);

@@ -2,7 +2,7 @@
 Usage: python3 tests/smoke.py /absolute/path/to/hamster-video /absolute/path/to/tools
 Set HAMSTER_TEST_ENCODERS=1 to additionally test macOS VideoToolbox HEVC encoding.
 """
-import functools, http.server, os, pathlib, subprocess, sys, tempfile, threading, json
+import functools, http.server, os, pathlib, subprocess, sys, tempfile, threading, json, re
 binary, tools = map(lambda p: str(pathlib.Path(p).resolve()), sys.argv[1:3])
 fixtures=pathlib.Path(__file__).parent/'fixtures'
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -44,6 +44,13 @@ try:
                 else:
                     assert video['codec_name']==('hevc' if name=='hevc' else 'h264'),(name,info)
                     assert audio['codec_name']=='aac',(name,info)
+                if name=='hevc':
+                    reference=fixtures/'sample.mp4'
+                    comparison=subprocess.run([tools+'/ffmpeg','-hide_banner','-i',str(media[0]),'-i',str(reference),'-lavfi','[0:v]setpts=N/TB[a];[1:v]setpts=N/TB[b];[a][b]ssim=shortest=1','-an','-fps_mode','passthrough','-f','null','-'],capture_output=True,text=True,timeout=60)
+                    assert comparison.returncode==0,comparison.stderr
+                    score=float(re.findall(r'All:([0-9.]+)',comparison.stderr)[-1])
+                    assert score>=.97,score
+                    assert media[0].stat().st_size<reference.stat().st_size*1.1
                 if name=='original':assert media[0].suffix=='.mkv'
                 if name.startswith('spanish'):
                     assert '/init-stream2.m4s' in Handler.requested,Handler.requested

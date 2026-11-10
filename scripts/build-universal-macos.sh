@@ -18,7 +18,7 @@ mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources" "$project_dir/dist"
 lipo -create "$target_dir/x86_64-apple-darwin/release/hamster-video" "$target_dir/aarch64-apple-darwin/release/hamster-video" -output "$app/Contents/MacOS/hamster-video"
 python3 scripts/build-icon.py
 cp assets/Info.plist "$app/Contents/"
-cp assets/Hamster.icns "$app/Contents/Resources/Hamster-0.2.0.icns"
+cp assets/Hamster.icns "$app/Contents/Resources/Hamster-0.2.2.icns"
 cp -R "$tools_dir" "$app/Contents/Resources/tools"
 cp -R third_party/Licenses "$app/Contents/Resources/"
 cp third_party/Rust-licenses.txt "$app/Contents/Resources/Licenses/"
@@ -38,7 +38,7 @@ ln -s /Applications "$stage/Applications"
 python3 scripts/verify-universal.py "$app" > dist/architecture-verification.json
 codesign --force --sign - "$app"
 codesign --verify --deep --strict "$app"
-hdiutil makehybrid -hfs -hfs-volume-name 'Hamster Video' -o "$stage-image" "$stage"
-hdiutil convert "$stage-image.dmg" -format UDZO -ov -o dist/HamsterVideo-0.2.0-beta2-Universal.dmg
-hdiutil verify dist/HamsterVideo-0.2.0-beta2-Universal.dmg
-(cd dist && shasum -a 256 HamsterVideo-0.2.0-beta2-Universal.dmg > SHA256SUMS.txt)
+# A folder image preserves signed bundle metadata; makehybrid injects FinderInfo.
+hdiutil create -fs HFS+ -srcfolder "$stage" -volname 'Hamster Video' -format UDZO -ov -o dist/HamsterVideo-0.2.2-beta-Universal.dmg
+hdiutil verify dist/HamsterVideo-0.2.2-beta-Universal.dmg
+(cd dist && shasum -a 256 HamsterVideo-0.2.2-beta-Universal.dmg > SHA256SUMS.txt)

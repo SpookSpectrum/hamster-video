@@ -4,6 +4,7 @@ use std::os::unix::process::CommandExt;
 use std::sync::atomic::Ordering;
 fn job() -> Job {
     Job {
+        id: engine::new_job_id(),
         title: String::new(),
         url: "https://example.com/video?a=1&b=$(echo nope)".into(),
         settings: Settings::default(),
@@ -89,7 +90,7 @@ fn tracks_deduplicate_formats_and_identify_original() {
 fn codec_modes_copy_or_convert_and_use_apple_tags() {
     let source = std::path::Path::new("input.mkv");
     let target = std::path::Path::new("out.mp4");
-    let compatible = json!({"streams":[{"codec_type":"video","codec_name":"h264","pix_fmt":"yuv420p","height":1080},{"codec_type":"audio","codec_name":"aac"}]});
+    let compatible = json!({"streams":[{"codec_type":"video","codec_name":"h264","pix_fmt":"yuv420p","height":1080,"bit_rate":"2000000"},{"codec_type":"audio","codec_name":"aac"}]});
     let a = engine::conversion_args(source, target, &compatible, Compatibility::Apple).unwrap();
     assert!(a.windows(2).any(|p| p == ["-c:v", "copy"]));
     assert!(a.windows(2).any(|p| p == ["-tag:v", "avc1"]));
@@ -139,4 +140,71 @@ fn urls_and_progress_handle_noise() {
     assert!(valid_url("https://example.com/watch?v=1&x=2"));
     assert_eq!(progress("PROGRESS|42.5%|2MiB/s|00:03").unwrap().0, 0.425);
     assert!(progress("PROGRESS|N/A|N/A|N/A").is_none());
+}
+
+#[test]
+fn hevc_rate_tracks_video_not_resolution_or_audio() {
+    for height in [144, 1080, 2160] {
+        let v = json!({"codec_name":"h264","height":height,"bit_rate":"2000000"});
+        assert_eq!(engine::hevc_target_bitrate(&v).unwrap(), 1_600_000);
+    }
+    for codec in ["vp9", "av1"] {
+        assert_eq!(
+            engine::hevc_target_bitrate(&json!({"codec_name":codec,"bit_rate":1200000})).unwrap(),
+            1_200_000
+        );
+    }
+    assert_eq!(
+        engine::hevc_target_bitrate(&json!({"codec_name":"h264","bit_rate":"50000"})).unwrap(),
+        40_000
+    );
+    for rate in [json!("N/A"), json!(0), json!(-1), json!("NaN"), json!(null)] {
+        assert!(
+            engine::hevc_target_bitrate(&json!({"codec_name":"h264","bit_rate":rate})).is_err()
+        );
+    }
+}
+#[test]
+fn packet_measurement_rejects_incomplete_scan() {
+    let lines = vec![
+        "packet|size=1000".into(),
+        "packet|size=2000".into(),
+        "stream|nb_read_packets=2".into(),
+    ];
+    assert_eq!(engine::measured_packet_bitrate(&lines, 2.).unwrap(), 12_000);
+    assert!(engine::measured_packet_bitrate(&lines[..2], 2.).is_err());
+    assert!(engine::measured_packet_bitrate(&lines, 0.).is_err());
+}
+#[test]
+fn native_hevc_is_copied_and_ten_bit_conversion_is_preserved() {
+    let source = std::path::Path::new("in.mkv");
+    let target = std::path::Path::new("out.mp4");
+    let native =
+        json!({"streams":[{"codec_type":"video","codec_name":"hevc","pix_fmt":"yuv420p10le"}]});
+    let a = engine::conversion_args(source, target, &native, Compatibility::Hevc).unwrap();
+    assert!(a.windows(2).any(|p| p == ["-c:v", "copy"]));
+    assert!(!a.contains(&"-b:v".into()));
+    let other = json!({"streams":[{"codec_type":"video","codec_name":"vp9","pix_fmt":"yuv420p10le","bit_rate":"1000000"}]});
+    let a = engine::conversion_args(source, target, &other, Compatibility::Hevc).unwrap();
+    assert!(a.windows(2).any(|p| p == ["-pix_fmt", "p010le"]));
+    assert!(a.windows(2).any(|p| p == ["-prio_speed", "0"]));
+}
+#[test]
+fn size_feedback_does_not_claim_savings_when_output_grows() {
+    assert!(engine::size_summary(1000, 800).contains("20% smaller"));
+    assert!(engine::size_summary(1000, 2000).contains("100% larger"));
+    assert!(engine::size_summary(1000, 1002).contains("same size"));
+}
+
+#[test]
+fn quality_samples_cover_short_and_long_videos_and_validate_scores() {
+    assert_eq!(engine::sample_positions(2.), vec![0.]);
+    assert_eq!(engine::sample_positions(100.), vec![0., 48., 96.]);
+    assert_eq!(
+        engine::parse_similarity("[Parsed_ssim_0] SSIM Y:0.98 All:0.975123 (16.04)"),
+        Some(0.975123)
+    );
+    for s in ["SSIM All:NaN", "SSIM All:1.2", "unrelated All:0.99", ""] {
+        assert!(engine::parse_similarity(s).is_none());
+    }
 }

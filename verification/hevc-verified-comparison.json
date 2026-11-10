@@ -1,0 +1,30 @@
+[
+  {
+    "case": "motion.mp4",
+    "source_bytes": 514419,
+    "output_bytes": 481138,
+    "size_change_percent": -6.47,
+    "full_clip_ssim": 0.986379
+  },
+  {
+    "case": "motion.mkv",
+    "source_bytes": 512482,
+    "output_bytes": 476786,
+    "size_change_percent": -6.97,
+    "full_clip_ssim": 0.985889
+  },
+  {
+    "case": "real-start.mp4",
+    "source_bytes": 584863,
+    "output_bytes": 1439148,
+    "size_change_percent": 146.07,
+    "full_clip_ssim": 0.987909
+  },
+  {
+    "case": "real.mp4",
+    "source_bytes": 654746,
+    "output_bytes": 1158622,
+    "size_change_percent": 76.96,
+    "full_clip_ssim": 0.974292
+  }
+]

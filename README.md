@@ -1,14 +1,14 @@
-<p align="center"><img src="assets/hamster-icon-v2.png" width="160" alt="Hamster Video icon"></p>
+<p align="center"><img src="assets/hamster-icon.png" width="160" alt="Hamster Video icon"></p>
 
 # Hamster Video
 
 A friendly macOS video downloader built in Rust, powered by yt-dlp and FFmpeg.
 
-**0.2.0 beta · Universal Mac · macOS 15 or later.** One installer contains native code for both Intel and Apple silicon Macs.
+**0.2.2 beta · Universal Mac · macOS 15 or later.** One installer contains native code for both Intel and Apple silicon Macs.
 
 ## Download and install
 
-Visit the [Releases page](https://github.com/SpookSpectrum/hamster-video/releases), open **Hamster Video 0.2.0 Beta**, and download **HamsterVideo-0.2.0-beta2-Universal.dmg** under **Assets**. The source-code ZIP is for developers.
+Visit the [Releases page](https://github.com/SpookSpectrum/hamster-video/releases), open **Hamster Video 0.2.2 Beta**, and download **HamsterVideo-0.2.2-beta-Universal.dmg** under **Assets**. The source-code ZIP is for developers.
 
 1. Open the DMG.
 2. Drag **Hamster Video** into **Applications**, replacing the previous version if installed.
@@ -36,7 +36,13 @@ The chosen track is included with the video, or used for **MP3 audio** extractio
 
 Subtitles are no longer offered or downloaded.
 
-### Appearance
+### HEVC quality and file size
+
+Existing HEVC video is kept without re-encoding. For other sources, Hamster measures the video bitrate separately from audio, then tests up to three short samples before converting the full video. It increases the bitrate if those samples lose too much detail, instead of using the old fixed bitrate for each resolution. Preparation is shown in the progress area and can be cancelled.
+
+A sample similarity check is a practical safeguard, not a guarantee of visually identical output. Very compressed sources may need more space when converted to HEVC. The completed download shows its actual size and whether it is larger or smaller than the downloaded source. Choose **Original quality** to avoid re-encoding loss altogether.
+
+## Appearance
 
 Click the small icon at the top right to cycle **Automatic (monitor) → Light (sun) → Dark (moon) → Automatic**. Automatic follows your Mac. Your choice is remembered.
 
@@ -45,6 +51,10 @@ Click the small icon at the top right to cycle **Automatic (monitor) → Light (
 - Quality ceilings of 480p, 720p, 1080p, 1440p and 2160p, when offered by the source.
 - MP3 audio extraction, download queue, progress, speed and ETA.
 - Pause and retry/resume; partial downloads are retained where supported.
+- Cancel stops an active download or conversion, removes that job from the queue, and deletes its unfinished files. Completed downloads are kept.
+- Conversion shows processed video time, progress and speed. HEVC encoding can take longer than downloading.
+
+Downloads started in this version use a private temporary folder per job. Partial files left by older versions are not automatically deleted because they cannot be safely identified as belonging to a particular job.
 - Local preferences and download history.
 
 A playlist's progress reflects its current stream, not the whole playlist. Interrupted conversions restart; some sites cannot resume a partial transfer. Files with unknown resolution retain their original resolution. Website support depends on yt-dlp and may change. There is no login/cookie integration, auto-updater or livestream recorder. Download only content you are permitted to save.

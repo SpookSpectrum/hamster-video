@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>hamster-video</string>
 	<key>CFBundleIconFile</key>
-	<string>Hamster-0.2.0.icns</string>
+	<string>Hamster-0.2.2.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>local.hamster.video</string>
 	<key>CFBundleName</key>
@@ -15,9 +15,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.2.0</string>
+	<string>0.2.2</string>
 	<key>CFBundleVersion</key>
-	<string>3</string>
+	<string>5</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.video</string>
 	<key>LSMinimumSystemVersion</key>
