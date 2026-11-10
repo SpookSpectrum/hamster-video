@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/hamster-icon.png" width="160" alt="Hamster Video icon"></p>
+<p align="center"><img src="assets/hamster-icon-v2.png" width="160" alt="Hamster Video icon"></p>
 
 # Hamster Video
 
