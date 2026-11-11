@@ -90,6 +90,12 @@
     [hidden] { display: none !important; }
     .demo { padding: 6px 0 60px; text-align: center; }
     .demo h2 { font-size: clamp(25px,3.5vw,34px); line-height: 1.25; letter-spacing: -.045em; margin: 0 0 25px; font-weight: 660; }
+    .video-frame {
+      border: 2px solid #c9c9c9;
+      border-radius: 21px;
+      overflow: hidden;
+      background: #17191b;
+    }
     .demo video {
       display: block; width: 100%; height: auto; aspect-ratio: 16 / 9;
       background: #17191b; border-radius: 19px; border: none;
@@ -200,18 +206,20 @@
     <section class="demo" id="demo" aria-labelledby="demo-title" hidden>
       <div class="container">
         <h2 id="demo-title">See Hamster Video in action</h2>
-        <video
-          id="demo-video"
-          controls
-          playsinline
-          preload="metadata"
-          width="1920"
-          height="1080"
-          aria-label="Hamster Video promotional demonstration"
-        >
-          <source src="./assets/hamster-video-demo.mp4" type="video/mp4">
-          Your browser does not support HTML5 video.
-        </video>
+        <div class="video-frame">
+          <video
+            id="demo-video"
+            controls
+            playsinline
+            preload="metadata"
+            width="1920"
+            height="1080"
+            aria-label="Hamster Video promotional demonstration"
+          >
+            <source src="./assets/hamster-video-demo.mp4" type="video/mp4">
+            Your browser does not support HTML5 video.
+          </video>
+        </div>
       </div>
     </section>
   </main>
