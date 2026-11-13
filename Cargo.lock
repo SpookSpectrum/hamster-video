@@ -728,7 +728,7 @@ dependencies = [
 
 [[package]]
 name = "hamster-video"
-version = "0.2.2"
+version = "1.0.0"
 dependencies = [
  "eframe",
  "libc",

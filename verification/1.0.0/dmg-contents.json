@@ -1,0 +1,28 @@
+{
+  "visible_contents": [
+    "Applications",
+    "Hamster Video.app"
+  ],
+  "hidden_contents": [
+    ".DS_Store"
+  ],
+  "applications_target": "/Applications",
+  "version": "1.0.0",
+  "build": "6",
+  "minimum_macos": "15.0",
+  "bundle_id": "local.hamster.video",
+  "hamster_icon_unchanged": true,
+  "signature": "passed deep/strict ad-hoc verification",
+  "architecture_status": "passed",
+  "macho_files": 111,
+  "positions": {
+    "Hamster Video.app": [
+      160,
+      170
+    ],
+    "Applications": [
+      480,
+      170
+    ]
+  }
+}

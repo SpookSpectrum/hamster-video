@@ -118,18 +118,48 @@ fn appearance_button(ui: &mut egui::Ui, mode: Appearance) -> bool {
             }
         }
         Appearance::Dark => {
-            let mut points = Vec::new();
-            for i in 0..=24 {
-                let a = std::f32::consts::FRAC_PI_2 + (i as f32 / 24.) * std::f32::consts::PI;
-                points.push(c + egui::vec2(a.cos() * 8., a.sin() * 8.));
+            // Filled crescent with an upper-right cutout, matching the reference.
+            // A triangle strip keeps the cutout transparent over hover backgrounds.
+            let radius = 9_f32;
+            let inner_radius = 8_f32;
+            let offset = egui::vec2(4.4, -4.4);
+            let distance = offset.length();
+            let along = (radius * radius - inner_radius * inner_radius
+                + distance * distance) / (2. * distance);
+            let half_chord = (radius * radius - along * along).sqrt();
+            let axis = offset / distance;
+            let side = egui::vec2(-axis.y, axis.x);
+            let top = axis * along - side * half_chord;
+            let tip = axis * along + side * half_chord;
+            let outer_start = top.y.atan2(top.x);
+            let outer_end = tip.y.atan2(tip.x) - std::f32::consts::TAU;
+            let inner_start = (top.y - offset.y).atan2(top.x - offset.x);
+            let inner_end = (tip.y - offset.y).atan2(tip.x - offset.x)
+                - std::f32::consts::TAU;
+            let mut mesh = egui::Mesh::default();
+            let mut outer = Vec::new();
+            let mut inner = Vec::new();
+            for i in 0..=48 {
+                let t = i as f32 / 48.;
+                let a = outer_start + t * (outer_end - outer_start);
+                let b = inner_start + t * (inner_end - inner_start);
+                let outside = c + egui::vec2(a.cos(), a.sin()) * radius;
+                let inside = c + offset + egui::vec2(b.cos(), b.sin()) * inner_radius;
+                outer.push(outside);
+                inner.push(inside);
+                mesh.colored_vertex(outside, color);
+                mesh.colored_vertex(inside, color);
+                if i < 48 {
+                    let n = i * 2;
+                    mesh.add_triangle(n, n + 1, n + 2);
+                    mesh.add_triangle(n + 1, n + 3, n + 2);
+                }
             }
-            painter.add(egui::Shape::line(points, stroke));
-            let mut points = Vec::new();
-            for i in 0..=24 {
-                let a = -std::f32::consts::FRAC_PI_2 - (i as f32 / 24.) * std::f32::consts::PI;
-                points.push(c + egui::vec2(a.cos() * 4., a.sin() * 8.));
-            }
-            painter.add(egui::Shape::line(points, stroke));
+            painter.add(egui::Shape::mesh(mesh));
+            // Antialiased edges keep the small filled symbol smooth.
+            let edge = egui::Stroke::new(0.5_f32, color);
+            painter.add(egui::Shape::line(outer, edge));
+            painter.add(egui::Shape::line(inner, edge));
         }
     }
     response.clicked()
@@ -538,9 +568,13 @@ impl eframe::App for Hamster {
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                     ui.add_space(18.);
                     ui.label(
-                        RichText::new("Hamster Video 0.2.2\nUniversal Mac app")
-                            .small()
-                            .color(muted),
+                        RichText::new(concat!(
+                            "Hamster Video ",
+                            env!("CARGO_PKG_VERSION"),
+                            "\nUniversal Mac app"
+                        ))
+                        .small()
+                        .color(muted),
                     );
                 });
             });

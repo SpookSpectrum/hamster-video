@@ -4,17 +4,17 @@
 
 A friendly macOS video downloader built in Rust, powered by yt-dlp and FFmpeg.
 
-**0.2.2 beta · Universal Mac · macOS 15 or later.** One installer contains native code for both Intel and Apple silicon Macs.
+**1.0.0 · Universal Mac · macOS 15 or later.** One installer contains native code for both Intel and Apple silicon Macs.
 
 ## Download and install
 
-Visit the [Releases page](https://github.com/SpookSpectrum/hamster-video/releases), open **Hamster Video 0.2.2 Beta**, and download **HamsterVideo-0.2.2-beta-Universal.dmg** under **Assets**. The source-code ZIP is for developers.
+Visit the [1.0.0 release](https://github.com/SpookSpectrum/hamster-video/releases/tag/v1.0.0) and download **HamsterVideo-1.0.0-Universal.dmg** under **Assets**. The source-code ZIP is for developers.
 
 1. Open the DMG.
 2. Drag **Hamster Video** into **Applications**, replacing the previous version if installed.
 3. Open Hamster Video from Applications.
 
-The beta is ad-hoc signed and not Apple-notarized. If macOS blocks first launch, after attempting to open it use the app-specific **Open Anyway** option in **System Settings → Privacy & Security**. No API key, Python installation or Homebrew is needed. Preferences and download history from 0.1 are retained.
+The app is ad-hoc signed and not Apple-notarized. If macOS blocks first launch, after attempting to open it use the app-specific **Open Anyway** option in **System Settings → Privacy & Security**. No API key, Python installation or Homebrew is needed. Existing preferences and download history are retained.
 
 ## Download a video
 
@@ -74,13 +74,16 @@ For development, use the helpers from an installed Universal release, including 
 HAMSTER_TOOLS="/Applications/Hamster Video.app/Contents/Resources/tools" cargo run --release
 ```
 
-To build the Universal app and DMG:
+To build the Universal app and DMG, install the build-only Finder-layout dependencies in a Python environment first:
 
 ```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r scripts/requirements-dmg.txt
 bash scripts/build-universal-macos.sh "/Applications/Hamster Video.app/Contents/Resources/tools"
 ```
 
-The script builds both Rust targets and checks every bundled Mach-O for both architectures and macOS 15 compatibility. It creates an ad-hoc signed build, not a Developer ID notarized release.
+The script builds both Rust targets and checks every bundled Mach-O for both architectures and macOS 15 compatibility. It creates an ad-hoc signed build, not a Developer ID notarized release. The DMG contains only the app, an Applications shortcut and hidden Finder layout metadata; source code and verification records remain separate.
 
 The corresponding FFmpeg, LAME and dav1d sources are in `third_party/`. Install Meson, Ninja and pkg-config/pkgconf as build tools, then rebuild both media-helper architectures:
 
@@ -97,7 +100,7 @@ python3 tests/smoke.py /absolute/path/to/hamster-video /absolute/path/to/tools
 python3 scripts/verify-universal.py "/absolute/path/to/Hamster Video.app"
 ```
 
-Tests cover theme cycling and following macOS, preference migration, language discovery and strict selection, codec conversion decisions, argument safety and cancellation. Local integration checks cover MP4, MP3, DASH merging, a two-language DASH fixture, original-codec output and expected failures. See `REPORT.md` for release-specific results and limits. Apple silicon binaries are cross-compiled and inspected; runtime testing on an Apple silicon Mac is still needed.
+Tests cover theme cycling and following macOS, preference migration, language discovery and strict selection, codec conversion decisions, argument safety and cancellation. Local integration checks cover MP4, MP3, DASH merging, a two-language DASH fixture, original-codec output and expected failures. See `REPORT.md` for release-specific results and limits. Apple silicon binaries are cross-compiled and inspected; runtime testing of this exact 1.0.0 build on an Apple silicon Mac is still needed.
 
 ## Privacy and storage
 

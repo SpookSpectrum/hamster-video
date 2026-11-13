@@ -19,8 +19,8 @@
   },
   "ffmpeg": {
     "version": "7.1.1 + LAME 3.100 + dav1d 1.5.4",
-    "sha256": "47b1a52d7aa1011aa2ac89e3dcc0a96e53c970fde7f0f716c70878c31af93241",
-    "bytes": 17141120,
+    "sha256": "3592692a65c6941ff3e671d086c1e9bae34f959e798fbd9e5426c6c3054d8452",
+    "bytes": 17174336,
     "architectures": [
       "x86_64",
       "arm64"
@@ -28,8 +28,8 @@
   },
   "ffprobe": {
     "version": "7.1.1 + LAME 3.100 + dav1d 1.5.4",
-    "sha256": "509509c0b35d6efbb252ee91466a7120fab291e2baa65a6d7f5b68fc3334567c",
-    "bytes": 17033216,
+    "sha256": "d6c905b7f21669d554ab4ff79f78188a7685872444c1fcd20de197e67a909b66",
+    "bytes": 17050112,
     "architectures": [
       "x86_64",
       "arm64"

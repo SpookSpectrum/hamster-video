@@ -1,0 +1,23 @@
+    Finished `release` profile [optimized] target(s) in 0.18s
+     Running unittests src/main.rs (/build/target/release/deps/hamster_video-6a09eaff944b9855)
+
+running 17 tests
+test tests::cancellation_terminates_process_group ... ok
+test tests::codec_modes_copy_or_convert_and_use_apple_tags ... ok
+test tests::hevc_rate_tracks_video_not_resolution_or_audio ... ok
+test tests::native_hevc_is_copied_and_ten_bit_conversion_is_preserved ... ok
+test tests::old_preferences_load_and_removed_subtitles_are_ignored ... ok
+test tests::original_quality_does_not_request_recoding_and_url_is_literal ... ok
+test tests::packet_measurement_rejects_incomplete_scan ... ok
+test tests::quality_samples_cover_short_and_long_videos_and_validate_scores ... ok
+test tests::selected_language_never_falls_back_to_another_language ... ok
+test tests::size_feedback_does_not_claim_savings_when_output_grows ... ok
+test tests::tracks_deduplicate_formats_and_identify_original ... ok
+test tests::urls_and_progress_handle_noise ... ok
+test tests::appearance_cycle_and_system_following ... ok
+test engine::cancellation_tests::pause_keeps_resumable_files_and_unowned_cleanup_is_rejected ... ok
+test engine::cancellation_tests::completed_outputs_never_replace_existing_files ... ok
+test engine::cancellation_tests::conversion_progress_emits_processed_fraction ... ok
+test engine::cancellation_tests::cancel_stops_process_and_only_removes_owned_partial_files ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s

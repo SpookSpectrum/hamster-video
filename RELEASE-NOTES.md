@@ -1,14 +1,23 @@
-# Hamster Video 0.2.2 Beta
+# Hamster Video 1.0.0
 
-Universal installer for Intel and Apple silicon Macs running macOS 15 or later.
+The first stable release of Hamster Video: a completely free video downloader with a simple, native Mac experience.
 
-- Replaced fixed HEVC bitrates with source-aware settings and short sample quality checks before full conversion.
-- Existing HEVC streams are copied without re-encoding. Audio bytes no longer inflate the estimated video bitrate.
-- Shows the finished HEVC file size and its size change compared with the downloaded source.
-- Keeps higher-bit-depth video in 10-bit HEVC when conversion is needed.
-- Heading now reads “Bring your videos home” without a final full stop.
-- Keeps the updated hamster icon, Cancel, Pause/Resume, audio languages and appearance controls.
+- Download videos up to 4K when offered by the source, or extract MP3 audio.
+- Select available audio-language tracks.
+- Choose H.264/MP4, Original quality, or HEVC/H.265, with resolution controls.
+- Universal support for Intel and Apple Silicon Macs running macOS 15 or later.
+- Queue downloads, pause, resume, cancel, retry and clear completed history.
+- Automatic, Light and Dark appearance, with a refined crescent moon icon.
+- Clean drag-and-drop installer; the hamster artwork and familiar app design are preserved.
 
-Download **HamsterVideo-0.2.2-beta-Universal.dmg**. Quit the old app, open the DMG, and drag Hamster Video into Applications, choosing Replace.
+Download **HamsterVideo-1.0.0-Universal.dmg**, quit the older app, open the DMG and drag Hamster Video from the left to Applications on the right. Open it from Applications.
 
-HEVC is not guaranteed smaller or visually identical to its source. Preparation checks representative samples rather than every frame. Choose Original quality to avoid re-encoding. This beta is ad-hoc signed, not Apple-notarized. Intel runtime is tested; Apple silicon binaries are cross-compiled and inspected, but Apple silicon runtime testing is still needed.
+**The app is ad-hoc signed, not Apple-notarized.** If macOS blocks first launch, attempt to open it, then use **System Settings → Privacy & Security → Open Anyway** for Hamster Video if you trust the download.
+
+Intel launch, 17 release unit tests, eight local download tests and audio-language discovery passed. Both architectures were verified in all 111 bundled executable components. This exact build still needs physical Apple Silicon runtime testing; full 4K and live-site downloads were not exercised in this verification run. See [REPORT.md](https://github.com/SpookSpectrum/hamster-video/blob/v1.0.0/REPORT.md) for details. HEVC file size and quality depend on the source; choose Original quality to avoid re-encoding.
+
+SHA-256:
+
+```text
+ebabd2fae2523b83c065357b834c371b5bd965ee21f68ef853951b6d31b9aee8  HamsterVideo-1.0.0-Universal.dmg
+```
