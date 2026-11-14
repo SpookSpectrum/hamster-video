@@ -28,3 +28,5 @@ rustc-ice-*.txt
 /dist/
 /work-stage.*/
 /.venv/
+__pycache__/
+*.pyc

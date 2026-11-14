@@ -1,44 +1,39 @@
-# Hamster Video 1.0.0 verification
+# Hamster Video 1.0.1 — verification report
 
-Verified November 13, 2026 on an Intel Mac running macOS 15.8.3.
+Release build 7; macOS 15 or later. Separate Intel and Apple Silicon installers use the same app identity and storage locations. No engine behavior or helper-version changes were introduced in this packaging release.
 
-## Final artifact
-
-- `HamsterVideo-1.0.0-Universal.dmg`, 172934686 bytes.
-- Version 1.0.0, build 6, minimum macOS 15.0, production identifier `local.hamster.video`.
-- Universal x86_64 and arm64 app and helpers: all 111 Mach-O components passed architecture, deployment-target and system-library dependency checks.
-- Ad-hoc signature: deep/strict verification passed. No Apple notarization.
-- Compressed APFS DMG passed disk-image integrity verification and opened in Finder.
-- Only the app, Applications symlink and hidden Finder layout metadata appear at the volume root. The original hamster icon is byte-identical.
-- Drag-to-Applications installation passed. All 148 installed files/links match the mounted image, including file contents and permissions.
-- Installed production GUI launched and displayed Hamster Video 1.0.0 and its ready state.
+## Candidate identity
 
 ```text
-ebabd2fae2523b83c065357b834c371b5bd965ee21f68ef853951b6d31b9aee8  HamsterVideo-1.0.0-Universal.dmg
+ba9f8aaf6b4154c6d536ce98117f59536b7149f7c74b53918c8416ca90c7c0fa  HamsterVideo-1.0.1-Intel.dmg
+f79b07ee643fab0014d2db9f59c806b0d9f1a9c30af56be182aed0417379f484  HamsterVideo-1.0.1-AppleSilicon.dmg
 ```
 
-## Automated checks on the final source and installed executable
+Each mounted DMG was verified against its signed app manifest, including file hashes, modes and symbolic links. All 109 native files contain exactly the intended architecture; signatures, required Deno entitlements, minimum macOS requirements and library dependencies were checked. yt-dlp's embedded program archive was preserved across thinning and signing. Standard Python framework links were restored only after the duplicate files were proved identical.
 
-- 17 optimized release unit tests passed; no failures.
-- Eight local integration cases passed: MP4, MP3, DASH merge, original quality, Spanish video, Spanish audio, expected unavailable-language rejection and expected missing-file failure.
-- Audio-language discovery passed for the German/Spanish DASH fixture.
-- Checksum generated and independently verified. Principal helper hashes match `third_party/tool-checksums.json`.
-- Release records are in `verification/1.0.0/`. Older records elsewhere in `verification/` describe earlier beta builds.
+## Intel results — directly observed, 14 November 2026
 
-## Earlier release GUI checks
+Intel iMac, macOS 15.8.3 (24H241). Installed from the final Intel DMG, version 1.0.1/build 7. The installed app exactly matched the signed candidate manifest before and after testing.
 
-An isolated release test bundle verified H.264-to-HEVC conversion, HEVC-to-H.264 conversion, Spanish Original-quality output, MP3 retry, queue progression, active pause/resume and cancellation, all appearance modes, restored preferences/history and Clear Finished preserving completed files. All five output files passed stream inspection and full decoding. These checks preceded final production packaging; they are not claimed as new tests of the installed final bundle.
+- 17 optimized Rust unit tests passed.
+- 13 packaging tests passed during candidate preparation.
+- Audio-language discovery and all eight deterministic download cases passed using the installed app and bundled tools: video, MP3, DASH merging, Original, Spanish video/audio, unavailable-language rejection and missing-resource error.
+- Desktop H.264-to-HEVC and HEVC-to-H.264 conversions passed; both 5-second 640×360 outputs fully decoded. HEVC SSIM was 0.986379 (threshold 0.97) and output size was 6.47% below the fixture source.
+- yt-dlp 2026.10.26, Deno 2.9.8 and FFmpeg/FFprobe 7.1.1 launched from the installed bundle. Deno executed a JavaScript test.
+- Existing settings were retained; two completed synthetic jobs and preferences survived restart. Clear Finished retained both completed files. Original preferences and empty history were restored afterward.
 
-## Coverage limits
+The restricted-shell HEVC test failed with VideoToolbox -12903 and did not reach H.264 conversion; both encoder paths subsequently passed through the installed desktop GUI. This is recorded as a desktop pass, not a shell encoder pass.
 
-- No physical Apple Silicon Mac was available for this exact build. Cross-compilation and static inspection do not substitute for runtime testing. Earlier successful testing reported by the maintainer is acknowledged separately.
-- Local deterministic fixtures are 640×360. Full 4K, long-form, HDR, playlists, sustained performance and live external-site extraction were not tested in this run.
-- Optional command-line VideoToolbox conversion testing could not create a compression session in the restricted execution environment. Equivalent conversions succeeded through the earlier desktop release test bundle.
-- The local installer launch did not reproduce browser-download quarantine behaviour. Gatekeeper may block a downloaded copy because this app is not notarized; see INSTALLATION.md.
-- HEVC size and visual similarity are source-dependent, not guaranteed improvements.
+The old 1.0.0 app had already been removed or moved by the maintainer, and its saved history was empty. Populated old-history migration and direct replacement were therefore not exercised. Intel live YouTube/4K, manual playback/listening, extended queue/pause/resume/retry/theme checks and browser-quarantined first launch were not separately completed in this release's acceptance record. Unit tests cover some control/theme behavior but do not replace these manual scenarios.
 
-## Packaging route
+## Apple Silicon results — maintainer reported
 
-The packaging script completed release tests, both target builds, bundling, architecture verification and ad-hoc signing. The restricted shell blocked disk-image creation with `Device not configured`, so Disk Utility created the delivered compressed APFS image from that same completed staging folder. The script retains its HFS+ route for unrestricted local builds. Both formats support the macOS 15 minimum.
+After receiving the test kit containing the exact Apple Silicon DMG identified above, the maintainer reported: “All the tests on my MacBook Silicon have past” and authorized Step 6 publication. This is recorded as a user-reported overall pass. MacBook model, macOS version, locally measured checksum, individual results and logs were not supplied; no independently observed per-scenario result is claimed.
 
-No release-blocking product defect was found in the executed checks.
+The test kit supplied installation/checksum instructions, a manual checklist, local media fixtures and optional installation/automated runners. Its archived files and included DMG checksum were verified on the Intel machine before handover. Static inspection alone was not treated as Apple Silicon runtime evidence.
+
+## Release scope and remaining limits
+
+The maintainer authorized publication following the MacBook pass, with the Intel evidence above. No additional test results are inferred. The release retains ad-hoc signing without Apple notarization. Local installation did not show a security prompt; browser download behavior may differ. Live-site support can change with yt-dlp and source websites. HEVC size/quality depend on content.
+
+The dependency review kept the validated Rust dependency set and pinned helpers; an optional GUI-framework upgrade and further size optimization were deferred. Candidate executable code, helper resources and installer bytes remain unchanged since validation. Release-facing documentation was finalized afterward. The website download buttons are a separate follow-up step.

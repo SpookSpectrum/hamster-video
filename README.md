@@ -4,11 +4,13 @@
 
 A friendly macOS video downloader built in Rust, powered by yt-dlp and FFmpeg.
 
-**1.0.0 · Universal Mac · macOS 15 or later.** One installer contains native code for both Intel and Apple silicon Macs.
+**Current stable release: 1.0.1 · macOS 15 or later.** Separate native installers for Intel and Apple Silicon Macs.
 
 ## Download and install
 
-Visit the [1.0.0 release](https://github.com/SpookSpectrum/hamster-video/releases/tag/v1.0.0) and download **HamsterVideo-1.0.0-Universal.dmg** under **Assets**. The source-code ZIP is for developers.
+Visit the [1.0.1 release](https://github.com/SpookSpectrum/hamster-video/releases/tag/v1.0.1) and choose **HamsterVideo-1.0.1-AppleSilicon.dmg** or **HamsterVideo-1.0.1-Intel.dmg** under **Assets**. Open Apple menu → About This Mac to check whether your Mac has an Apple chip or Intel processor. The source-code ZIP is for developers.
+
+Apple Silicon: **84.8 MB download / 163.4 MB installed**. Intel: **91.9 MB download / 181.3 MB installed** (decimal MB). The previous Universal installer remains in the [1.0.0 release](https://github.com/SpookSpectrum/hamster-video/releases/tag/v1.0.0).
 
 1. Open the DMG.
 2. Drag **Hamster Video** into **Applications**, replacing the previous version if installed.
@@ -74,16 +76,44 @@ For development, use the helpers from an installed Universal release, including 
 HAMSTER_TOOLS="/Applications/Hamster Video.app/Contents/Resources/tools" cargo run --release
 ```
 
-To build the Universal app and DMG, install the build-only Finder-layout dependencies in a Python environment first:
+To compile and stage an architecture-specific app, install the Rust targets and use the pinned Universal helpers from 1.0.0:
+
+```sh
+rustup target add x86_64-apple-darwin aarch64-apple-darwin
+bash scripts/build-macos.sh --arch intel --tools "/Applications/Hamster Video.app/Contents/Resources/tools"
+bash scripts/build-macos.sh --arch apple-silicon --tools "/Applications/Hamster Video.app/Contents/Resources/tools"
+```
+
+Universal staging remains available with `--arch universal`, or through the compatibility command `bash scripts/build-universal-macos.sh "/Applications/Hamster Video.app/Contents/Resources/tools"`. These commands now stage apps only: they do not sign, install, publish, or create a DMG. Signing and installer creation are separate commands below. The installers retain the existing app-to-Applications layout.
+
+Outputs go to `dist/<version>/Intel`, `dist/<version>/AppleSilicon`, or `dist/<version>/Universal`. Each directory contains the staged `Hamster Video.app` and separate build, architecture, source-input and original-signing-metadata reports. Existing output directories are never replaced; pass `--output-dir /path/to/a/new/directory` for another candidate. Add `--offline` when Cargo dependencies are cached. `CARGO_TARGET_DIR` is respected.
+
+The builder checks Cargo/plist version agreement and pinned helper checksums, copies helpers before thinning, retains resources/permissions/links, and verifies every Mach-O file for exactly the requested architectures. It rejects broken/external links, newer-than-macOS-15 requirements, external runtime search paths and unresolved library dependencies. Apple system libraries are allowed without requiring standalone files because macOS can provide them through its shared cache. The verifier resolves each image's declared search paths; it fails conservatively rather than assuming inherited search paths or searching the development machine.
+
+The original tools directory is never thinned in place. Existing helper signing information is recorded per architecture, including Deno's entitlements, for the subsequent signing step. Architecture verification does not establish that a staged app is correctly signed or that it runs on a physical Apple Silicon Mac.
+
+### Sign and package candidate installers
+
+Install the pinned build-only Python packages in an isolated environment. Then, for each staged variant:
 
 ```sh
 python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install -r scripts/requirements-dmg.txt
-bash scripts/build-universal-macos.sh "/Applications/Hamster Video.app/Contents/Resources/tools"
+.venv/bin/python -m pip install -r scripts/requirements-dmg.txt
+.venv/bin/python scripts/package-macos.py prepare --stage dist/1.0.1/Intel --package-dir dist/candidates/Intel
+.venv/bin/python scripts/package-macos.py create-image --package-dir dist/candidates/Intel --image dist/HamsterVideo-1.0.1-Intel.dmg
 ```
 
-The script builds both Rust targets and checks every bundled Mach-O for both architectures and macOS 15 compatibility. It creates an ad-hoc signed build, not a Developer ID notarized release. The DMG contains only the app, an Applications shortcut and hidden Finder layout metadata; source code and verification records remain separate.
+Repeat with `AppleSilicon` and `HamsterVideo-1.0.1-AppleSilicon.dmg`. Existing output paths are refused. The prepare command signs an independent copy from the inside out, retains Deno's recorded entitlements, verifies every native file and the outer app, and saves hashes and signing evidence outside the installer. It restores standard Python framework links only after verifying the original copies are identical. It never changes the source helpers or installs the app.
+
+The architecture builder preserves yt-dlp's embedded PyInstaller program archive, which plain `lipo` would lose from the Intel slice. The archive is compared byte-for-byte with the pinned Universal helper and hashed again after signing and from the mounted DMG. No yt-dlp or Python version change is involved.
+
+If `hdiutil create` is unavailable in the execution environment, use Disk Utility → File → New Image → Image from Folder, copy the candidate's `image-root` preserving links to a folder named `Hamster Video`, select that folder so the mounted volume has the correct name, and save a compressed, unencrypted DMG under the exact intended filename. Verify either creation route with:
+
+```sh
+.venv/bin/python scripts/package-macos.py verify-image --package-dir dist/candidates/Intel --image dist/HamsterVideo-1.0.1-Intel.dmg
+```
+
+If shell attachment is also restricted, mount the image in Finder and perform the same mounted-content checks, recording the image-to-mount mapping and read-only status. Image verification checks integrity, mounts read-only, checks the app/Applications layout, matches the signed candidate's file hashes, permissions and links, and reruns architecture and signature checks before detaching. The result is a candidate installer; application integration tests and physical-device acceptance remain required before publication.
 
 The corresponding FFmpeg, LAME and dav1d sources are in `third_party/`. Install Meson, Ninja and pkg-config/pkgconf as build tools, then rebuild both media-helper architectures:
 
@@ -97,10 +127,13 @@ This produces `work/media-universal/bin/universal/`. FFmpeg uses macOS VideoTool
 
 ```sh
 python3 tests/smoke.py /absolute/path/to/hamster-video /absolute/path/to/tools
+python3 tests/packaging.py
+python3 scripts/macos_bundle.py verify "/absolute/path/to/Hamster Video.app" --arch intel
+python3 scripts/macos_bundle.py verify "/absolute/path/to/Hamster Video.app" --arch apple-silicon
 python3 scripts/verify-universal.py "/absolute/path/to/Hamster Video.app"
 ```
 
-Tests cover theme cycling and following macOS, preference migration, language discovery and strict selection, codec conversion decisions, argument safety and cancellation. Local integration checks cover MP4, MP3, DASH merging, a two-language DASH fixture, original-codec output and expected failures. See `REPORT.md` for release-specific results and limits. Apple silicon binaries are cross-compiled and inspected; runtime testing of this exact 1.0.0 build on an Apple silicon Mac is still needed.
+Tests cover theme cycling and following macOS, preference migration, language discovery and strict selection, codec conversion decisions, argument safety and cancellation. Local integration checks cover MP4, MP3, DASH merging, a two-language DASH fixture, original-codec output and expected failures. Packaging tests use small compiled Mach-O fixtures to check accepted architectures and rejected packaging faults. [REPORT.md](REPORT.md) records 1.0.1 results: Intel automated and desktop conversion checks passed, and the maintainer reports all MacBook Apple Silicon tests passed. It also records the limits of the available evidence.
 
 ## Privacy and storage
 

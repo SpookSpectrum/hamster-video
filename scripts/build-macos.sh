@@ -1,3 +1,3 @@
 #!/bin/bash
 set -euo pipefail
-exec bash "$(dirname "$0")/build-universal-macos.sh" "$@"
+exec python3 "$(dirname "$0")/macos_bundle.py" build "$@"

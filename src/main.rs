@@ -571,7 +571,7 @@ impl eframe::App for Hamster {
                         RichText::new(concat!(
                             "Hamster Video ",
                             env!("CARGO_PKG_VERSION"),
-                            "\nUniversal Mac app"
+                            "\nMac app"
                         ))
                         .small()
                         .color(muted),
