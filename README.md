@@ -16,7 +16,7 @@ A friendly macOS video downloader built in Rust, powered by yt-dlp and FFmpeg.
   <sub>Hamster Video is free. A few nuts help keep its developer going. The hamster insists on a commission.</sub>
 </p>
 
-<p align="center"><a href="https://openmacapps.com/apps/hamster-video/">Listed on OpenMacApps</a></p>
+<p align="center"><a href="https://openmacapps.com/apps/hamster-video/"><img src="https://openmacapps.com/badge.svg" alt="Listed on OpenMacApps" width="171" height="20"></a></p>
 
 ## Download and install
 
