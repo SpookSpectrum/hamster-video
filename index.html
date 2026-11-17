@@ -106,6 +106,13 @@
       background: #17191b; border: 0; border-radius: 0;
       box-shadow: none;
     }
+    .support { padding: 0 0 64px; text-align: center; }
+    .support-card { max-width: 720px; margin: auto; padding: 32px 24px; border: 1px solid #ead8c9; border-radius: 20px; background: #f7ede4; }
+    .support h2 { margin: 0 0 10px; font-size: 27px; letter-spacing: -.035em; }
+    .support p { max-width: 530px; margin: 0 auto 20px; color: var(--muted); }
+    .support .button { background: #75482f; box-shadow: none; padding: 14px 22px; }
+    .support .button:hover { background: #5c3723; }
+    .support .support-note { margin: 12px 0 0; max-width: none; font-size: 13px; }
     footer { border-top: 1px solid var(--border); padding: 23px 0 30px; }
     .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
     .footer-inner nav { display: flex; gap: 21px; }
@@ -231,6 +238,16 @@
             <source src="./assets/hamster-video-demo.mp4" type="video/mp4">
             Your browser does not support HTML5 video.
           </video>
+        </div>
+      </div>
+    </section>
+    <section class="support" id="support" aria-labelledby="support-title">
+      <div class="container">
+        <div class="support-card">
+          <h2 id="support-title">A little fuel for the workshop</h2>
+          <p>Hamster Video is free. A few nuts help keep its developer going. The hamster insists on a commission.</p>
+          <a class="button" href="https://ko-fi.com/kimorilabs"><span aria-hidden="true">🥜</span> Buy the hamster some nuts</a>
+          <p class="support-note">via Ko-fi · Kimori Labs · Entirely optional</p>
         </div>
       </div>
     </section>
