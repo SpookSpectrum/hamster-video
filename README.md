@@ -12,7 +12,7 @@ A friendly macOS video downloader built in Rust, powered by yt-dlp and FFmpeg.
 </p>
 <p align="center">
   <a href="https://ko-fi.com/kimorilabs"><img src="assets/support-kimori.svg" alt="🥜 Buy the hamster some nuts on Ko-fi" width="290" height="44"></a><br>
-  <sub>via Ko-fi · Kimori Labs · Entirely optional</sub><br>
+  <sub>via Ko-fi · Kimori Labs</sub><br>
   <sub>Hamster Video is free. A few nuts help keep its developer going. The hamster insists on a commission.</sub>
 </p>
 
