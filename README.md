@@ -11,12 +11,9 @@ A friendly macOS video downloader built in Rust, powered by yt-dlp and FFmpeg.
   <a href="https://github.com/SpookSpectrum/hamster-video/releases/download/v1.0.1/HamsterVideo-1.0.1-Intel.dmg"><img src="assets/download-intel.svg" alt="Download for Intel Mac — Free" width="290" height="52"></a>
 </p>
 <p align="center">
-  Hamster Video is free. A few nuts help keep its developer going.<br>
-  The hamster insists on a commission.
-</p>
-<p align="center">
-  <a href="https://ko-fi.com/kimorilabs"><img src="assets/support-kimori.svg" alt="Buy the hamster some nuts on Ko-fi" width="290" height="52"></a><br>
-  <sub>via Ko-fi · Kimori Labs · Entirely optional</sub>
+  <a href="https://ko-fi.com/kimorilabs"><img src="assets/support-kimori.svg" alt="🥜 Buy the hamster some nuts on Ko-fi" width="290" height="44"></a><br>
+  <sub>via Ko-fi · Kimori Labs · Entirely optional</sub><br>
+  <sub>Hamster Video is free. A few nuts help keep its developer going. The hamster insists on a commission.</sub>
 </p>
 
 ## Download and install
