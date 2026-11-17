@@ -6,6 +6,19 @@ A friendly macOS video downloader built in Rust, powered by yt-dlp and FFmpeg.
 
 **Current stable release: 1.0.1 · macOS 15 or later.** Separate native installers for Intel and Apple Silicon Macs.
 
+<p align="center">
+  <a href="https://github.com/SpookSpectrum/hamster-video/releases/download/v1.0.1/HamsterVideo-1.0.1-AppleSilicon.dmg"><img src="assets/download-apple-silicon.svg" alt="Download for Apple Silicon — Free" width="290" height="52"></a>
+  <a href="https://github.com/SpookSpectrum/hamster-video/releases/download/v1.0.1/HamsterVideo-1.0.1-Intel.dmg"><img src="assets/download-intel.svg" alt="Download for Intel Mac — Free" width="290" height="52"></a>
+</p>
+<p align="center">
+  Hamster Video is free. A few nuts help keep its developer going.<br>
+  The hamster insists on a commission.
+</p>
+<p align="center">
+  <a href="https://ko-fi.com/kimorilabs"><img src="assets/support-kimori.svg" alt="Buy the hamster some nuts on Ko-fi" width="290" height="52"></a><br>
+  <sub>via Ko-fi · Kimori Labs · Entirely optional</sub>
+</p>
+
 ## Download and install
 
 Visit the [1.0.1 release](https://github.com/SpookSpectrum/hamster-video/releases/tag/v1.0.1) and choose **HamsterVideo-1.0.1-AppleSilicon.dmg** or **HamsterVideo-1.0.1-Intel.dmg** under **Assets**. Open Apple menu → About This Mac to check whether your Mac has an Apple chip or Intel processor. The source-code ZIP is for developers.
